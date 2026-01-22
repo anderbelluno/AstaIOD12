@@ -1,0 +1,1 @@
+HDXLauncher.exe -uninstall

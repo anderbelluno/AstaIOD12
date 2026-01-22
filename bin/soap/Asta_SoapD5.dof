@@ -1,0 +1,144 @@
+[Compiler]
+A=1
+B=0
+C=1
+D=1
+E=0
+F=0
+G=1
+H=1
+I=1
+J=1
+K=0
+L=1
+M=0
+N=1
+O=1
+P=1
+Q=0
+R=0
+S=0
+T=0
+U=0
+V=1
+W=0
+X=1
+Y=1
+Z=1
+ShowHints=1
+ShowWarnings=1
+UnitAliases=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[Linker]
+MapFile=0
+OutputObjs=0
+ConsoleApp=1
+DebugInfo=0
+RemoteSymbols=0
+MinStackSize=16384
+MaxStackSize=1048576
+ImageBase=4194304
+ExeDescription=ASTA - Simple Object Access Protocol
+[Directories]
+OutputDir=f:\output
+UnitOutputDir=f:\output
+PackageDLLOutputDir=f:\output
+PackageDCPOutputDir=f:\output
+SearchPath=$(DELPHI)\lib;e:\d\un;e:\d\un\AstaIO;e:\d\un\soap
+Packages=Vcl50;Vclx50;VclSmp50;Vcldb50;vclado50;ibevnt50;Vclbde50;vcldbx50;Qrpt50;TeeUI50;TeeDB50;Tee50;Dss50;TeeQR50;VCLIB50;Vclmid50;vclie50;Inetdb50;Inet50;NMFast50;webmid50;dclocx50;dclaxserver50;Oe;SqlDir50;Apollo5D5;elpproD5;ElPackD5
+Conditionals=
+DebugSourceDirs=
+UsePackages=0
+[Parameters]
+RunParams=database=f:\delphi3\demos\data\employee.gdb sessions=4
+HostApplication=
+[Language]
+ActiveLang=
+ProjectLang=$00000409
+RootDir=
+[Version Info]
+IncludeVerInfo=1
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1033
+CodePage=1252
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+[Excluded Packages]
+C:\WINNT\System32\dxEdtrD5.bpl=Express inplace editors
+C:\WINNT\System32\dxcomnD5.bpl=ExpressCommonLibrary by Developer Express Inc.
+C:\WINNT\System32\EQTLD5.bpl=ExpressQuantumTreeList by Developer Express Inc.
+C:\WINNT\System32\ECQDBCD5.bpl=ExpressQuantumDBControl by Developer Express Inc.
+C:\WINNT\System32\dxDBEdD5.bpl=Express data-aware inplace editors
+C:\WINNT\System32\EQDBTLD5.bpl=ExpressQuantumDBTreeList by Developer Express Inc.
+C:\WINNT\System32\EQGridD5.bpl=ExpressQuantumGrid by Developer Express Inc.
+C:\WINNT\System32\dxGrEdD5.bpl=Express extended inplace editors
+C:\WINNT\System32\dac50.bpl=Core Lab Data Access Components
+f:\output\Asta2000.bpl=ASTA Inter Op - Cross Platform Web Services
+f:\output\Asta_SoapD5.bpl=ASTA - Simple Object Access Protocol
+f:\output\AstaFactoryCache.bpl=ASTA Inter Op - Cross Platform Web Services
+E:\dbOvernet\LibD5\dbOvernetD5.bpl=dbOvernet Delphi 5 Component Package
+f:\output\dcelppD5.bpl=EldoS Professional Components (Design-time)
+f:\output\AstaXMLD5.bpl=ASTA XML Parser
+f:\output\AstaPalmObject.bpl=(untitled)
+f:\output\packastatst.bpl=Asta Remote
+$(DELPHI)\Projects\Bpl\AstaFileSync.bpl=ASTA File Synchronization
+f:\output\AstaRemoteControlD5.bpl=ASTA REMOUTE CLIENT SERVER
+f:\output\AstaIOIndy.bpl=AstaIO - Indy - Better than the Web
+f:\output\AstaRemote.bpl=Asta Remote
+f:\output\astarcs.bpl=ASTA REMOUTE CLIENT SERVER
+f:\output\AstaIOStringWiresD5.bpl=ASTA - Internet Client Server
+f:\output\AstaOdbcSupp.bpl=ASTA - Internet Client Server
+f:\output\AstaPDA.bpl=ASTA PDA- Wireless Enabled Web Services
+f:\output\AstaIODXSock.bpl=ASTA - Internet Client Server
+f:\output\AstaD5Supp.bpl=ASTA - Internet Client Server
+$(DELPHI)\Projects\Bpl\ZMsSql5.bpl=Zeos MS SQL Components
+$(DELPHI)\Projects\Bpl\ZMySQL5.bpl=Zeos MySQL Components
+f:\output\AstaSyncTools.bpl=(untitled)
+$(DELPHI)\Projects\Bpl\ZIbSql5.bpl=Zeos Interbase Components
+$(DELPHI)\Projects\Bpl\ZHtml5.bpl=Zeos HTML Browser
+F:\CtLib\CTLib_D5.bpl=Sybase CTLibrary Components Pack
+f:\output\AstaPB.bpl=ASTA PosBus Replication and Syncronization Tools
+f:\output\astacompedtd5.bpl=ASTA - Component Editors
+f:\output\AstaIPWorks.bpl=ASTA - Internet Client Server
+f:\output\AstaDade.bpl=(untitled)
+F:\FF\F154_d50.bpl=FlashFiler Designtime Package - VCL40         
+E:\OnGuard\G110_D50.BPL=OnGuard Components
+E:\iPRO\I110_D50.BPL=iPRO Components
+f:\output\AstaSoapWiz.bpl=ASTA - Internet Client Server
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlSearchPath]
+Count=1
+Item0=$(DELPHI)\lib;e:\d\un;e:\d\un\AstaIO;e:\d\un\soap
+[HistoryLists\hlUnitOutputDirectory]
+Count=3
+Item0=e:\d\un\AstaIO
+Item1=f:\output
+Item2=e:\output
+[HistoryLists\hlBPLOutput]
+Count=2
+Item0=f:\output
+Item1=e:\output
+[HistoryLists\hlDCPOutput]
+Count=3
+Item0=e:\d\un
+Item1=f:\output
+Item2=e:\output

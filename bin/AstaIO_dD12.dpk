@@ -1,0 +1,52 @@
+package AstaIO_dD12;
+
+{$R *.res}
+{$R 'AstaIOReg.dcr'}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'ASTA InterOP CrossPlatform Web Services'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  designide,
+  dcldb,
+  AstaIO_rD12;
+
+contains
+  AstaIOReg in 'AstaIOReg.pas',
+  AstaIOCompEdt in 'AstaIOCompEdt.pas',
+  AstaIOCompUpdateSQLForm in 'AstaIOCompUpdateSQLForm.pas' {AstaIOCompUpdateSQLFrm},
+  AstaIOCompLoadForm in 'AstaIOCompLoadForm.pas' {AstaIOCompLoadFrm},
+  AstaIOWorkBenchFrm in 'AstaIOWorkBenchFrm.pas' {WorkBenchForm},
+  AstaIOOffLine in 'AstaIOOffLine.pas' {OffLineDialog},
+  AstaIOPropEdt in 'AstaIOPropEdt.pas',
+  AstaIOServerDatasetUtils in 'AstaIOServerDataSetUtils.pas',
+  AstaIOServiceUtils in 'AstaIOServiceUtils.pas',
+  AstaIOCompAbout in 'AstaIOCompAbout.pas' {f_compabout},
+  AstaIODatagrams in 'AstaIODatagrams.pas',
+  AstaIODatagramClient in 'AstaIODataGramClient.pas',
+  AstaIODatagramServer in 'AstaIODatagramServer.pas',
+  AstaIOFieldLinks in 'AstaIOFieldLinks.pas' {LinkFields},
+  AstaIOFieldsSelect in 'AstaIOFieldsSelect.pas' {AstaIOFieldsSelectDialog};
+
+end.

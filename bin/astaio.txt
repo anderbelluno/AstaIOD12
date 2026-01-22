@@ -1,0 +1,48 @@
+ASTA IO
+=======
+
+Fixes Needed
+============
+1. notification on ClientDataSets
+2. UpdatesPending on Asta3CustomDataSet to new mode.  [done]
+3. SuppressEvents for Asta3CustomDataSet [done]
+4. Asta3ParamList brought up to date with AstaParamList
+5. Wince compiler directive updated to exclude windows specific calls
+for linux compiles  [done]
+6. Linux XFM's?
+7. master field name check- master detail!
+8. server AV's when closed with connected clients.
+
+Features Needed
+===============
+1. design time population logic
+2. expressway sql
+3. multiple Provider Updates
+4. AstaZLib compression
+5. AutoClientUpdates
+6. Provider Broadcasts
+7. AstaclientWire without dependency on db.pas
+8. ASTAIProvider component
+
+Changes
+
+02/26/01
+1. AstaIndyClient changed sendGet to check boolean rather than string.
+2. Changed design time RemoteDataSet.Active to NOT wait for authentication
+info.
+
+02/27/01
+1. compiler directive Asta3mesagePacker.Read for windows Call to SysAllocStringLen
+
+2. added AstaMessagePacker.IsDesignTime method. Server sends back
+authentication info on a connect. this can't be used when the client is
+design time. if the user is not authenticated on the server nothing comes back
+so I don't see this as a problem. probably should raise an exception then.
+
+3. debate as to whether AstaclientWire should be allowed to be active at
+design time.
+
+4. Added try/finally to dispose of some R:TReader's in AstaClientRemoteDataSet
+
+3/5/01
+1. renamed AstaIo and AstaIndy units to  IO instead of 3

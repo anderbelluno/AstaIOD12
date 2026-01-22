@@ -1,0 +1,26 @@
+{.$DEFINE SVCOM} // Uses the SvCom Service pack !!
+
+{ Disable this if you're NOT using MS-SQL Server in the ADO Mode !! }
+{$DEFINE ADO_SQLServer}
+
+{$IFDEF VER120}
+  {$DEFINE D4}
+  {$DEFINE INC_VARIANTS}
+{$ENDIF}
+
+{$IFDEF VER130}
+  {$DEFINE D5}
+  {$DEFINE INC_VARIANTS}
+{$ENDIF}
+
+{$IFDEF VER140}
+  {$DEFINE D6}
+  {$DEFINE D6ANDUP}
+  {$DEFINE INC_VARIANTS}
+{$ENDIF}
+
+{$IFDEF VER150}
+  {$DEFINE D6ANDUP}
+  {$DEFINE D7}
+  {$DEFINE INC_VARIANTS}
+{$ENDIF}

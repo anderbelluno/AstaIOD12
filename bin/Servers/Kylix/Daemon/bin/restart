@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# chkconfig: 345 20 80
+
+# description: To restart the CSA Profile server.
+# This is to be used by the owner of the application
+#
+
+# Set environment variables
+CURDATE=`date +%Y-%m-%d_%H_%M_%S`
+export IB_LIB="/opt/interbase/lib"
+export CSA_SERVER="/apps/csa"
+export CSA_SERVER_CFG_FILE="$CSA_SERVER/profileserver.conf"
+export CSA_SERVER_LOG_FILE="$CSA_SERVER/profileserver.log"
+
+# Source function library.
+# the . runs the script in the current process
+. /etc/rc.d/init.d/functions
+#. /opt/kylix3/bin/kylixpath /opt/kylix3 > /dev/null
+
+#PATH=$IB_LIB:$PATH
+
+if [ -n "$LD_LIBRARY_PATH" ]; then
+  export LD_LIBRARY_PATH="$CSA_SERVER:$IB_LIB:$LD_LIBRARY_PATH"
+else
+  export LD_LIBRARY_PATH="$CSA_SERVER:$IB_LIB"
+fi
+
+echo "LD_LIBRARY_PATH="$LD_LIBRARY_PATH
+echo "PATH="$PATH
+
+# Stop the server
+$CSA_SERVER/csaprofile stop
+
+# Check the file is there and is executable.
+# The [] represents the test command.  See man test.
+[ -x $CSA_SERVER/profileserver ] || exit 0
+
+# move the log file
+if [ -w $CSA_SERVER_LOG_FILE ]; then
+  mv $CSA_SERVER_LOG_FILE $CSA_SERVER/logs/profileserver_$CURDATE.log
+  gzip $CSA_SERVER/logs/profileserver_$CURDATE.log
+fi
+
+echo -n "Starting CSA Profile server: "
+
+#  the daemon function is in /etc/rc.d/init.d/functions
+daemon $CSA_SERVER/profileserver
+RETVAL=$?
+echo
+
+exit $RETVAL
+
+
+
+

@@ -1,0 +1,94 @@
+[FileVersion]
+Version=6.0
+[Compiler]
+A=8
+B=0
+C=0
+D=1
+E=0
+F=0
+G=1
+H=1
+I=1
+J=1
+K=0
+L=1
+M=0
+N=1
+O=0
+P=1
+Q=0
+R=0
+S=0
+T=0
+U=0
+V=1
+W=0
+X=1
+Y=0
+Z=1
+ShowHints=1
+ShowWarnings=1
+UnitAliases=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[Linker]
+MapFile=0
+OutputObjs=0
+ConsoleApp=1
+DebugInfo=0
+RemoteSymbols=0
+MinStackSize=16384
+MaxStackSize=1048576
+ImageBase=4194304
+ExeDescription=
+[Directories]
+OutputDir=f:\output
+UnitOutputDir=c:\AstaIO
+PackageDLLOutputDir=f:\output
+PackageDCPOutputDir=
+SearchPath=$(DELPHI)\lib;g:\d\un;g:\d\un\AstaIO;g:\d\un\soap;g:\d\un\remotecontrol;z:\lakeofsoft\common
+Packages=vclx30;VCL30;vcldb30;vcldbx30;inetdb30;inet30;VclSmp30;Qrpt30;teeui30;teedb30;tee30;dss30;IBEVNT30;Vcl40;Vclx40;Vcldb40;VclSmp40;OE4;RPRT30D4;O305_R40;Vcl50;Vclx50;Vcldb50;Vclbde50;vcl;rtl;vclx;dbrtl;vcldb;bdertl;AstaD6;db301d6r;CalWidgets30_D6;qrpt
+Conditionals=
+DebugSourceDirs=
+UsePackages=0
+[Parameters]
+RunParams=path=g:\dbisam\data 
+HostApplication=
+Launcher=
+UseLauncher=0
+DebugCWD=
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=C:\Delphi6\Bin\
+[Version Info]
+IncludeVerInfo=1
+AutoIncBuild=0
+MajorVer=5
+MinorVer=0
+Release=5
+Build=62
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=1
+Locale=1033
+CodePage=1252
+[Version Info Keys]
+CompanyName=ASTA Technology Group Inc
+FileDescription=ASTA SkyWire ADO Server
+FileVersion=3.0
+InternalName=Asta3ADOServer
+LegalCopyright=Copyright © 1997-2002 ASTA Technology Group Inc
+LegalTrademarks=
+OriginalFilename=Asta3ADOServer.exe
+ProductName=ASTA SkyWire ADO Server
+ProductVersion=3.0
+[Excluded Packages]
+f:\output\dtqScheduleD6.bpl=dtqScheduler Components
+G:\d\un\TorryMySQL\D6\MySQLDAC6.bpl=MySQL Direct Access Components
+c:\output\AstaOdbcExpress.bpl=(untitled)
+c:\output\AstaDBConvertWizard.bpl=ASTA Base Data Access Conversion Wizard
+f:\output\AstaBDEConvertWizard.bpl=Asta BDE Conversion Wizard
+f:\output\AstaIOConvertWizard.bpl=AstaIO Base Data Access Conversion Wizard
+f:\output\AstaIOBDEConvertWizard.bpl=AstaIO BDE Conversion Wizard

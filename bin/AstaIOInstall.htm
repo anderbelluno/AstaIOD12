@@ -1,0 +1,411 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<META NAME="GENERATOR" Content="Visual Page 2.0 for Windows">
+	<TITLE>ASTA SkyWire Server COM Toolkit</TITLE>
+	<LINK REL="stylesheet" TYPE="text/css" HREF="astatech.css">
+</HEAD>
+
+<BODY leftmargin="0" topmargin="0" marginheight="0" marginwidth="0">
+
+<P>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD>
+			<P><IMG SRC="img/platforms.gif" WIDTH="200" HEIGHT="66" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+		<TD WIDTH="100%" ALIGN="CENTER" background="img/topback.gif">
+			<P ALIGN="CENTER"><A NAME="title"></A><B><FONT SIZE="5">ASTA InterOP for Windows and Linux</FONT></B>
+		</TD>
+	</TR>
+</TABLE>
+</P>
+
+<BLOCKQUOTE>
+	<BLOCKQUOTE>
+		<BLOCKQUOTE>
+			<CENTER>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="10" CELLSPACING="0" WIDTH="70%">
+				<TR>
+					<TD WIDTH="26%" ALIGN="CENTER">
+						<H1 ALIGN="CENTER">AstaIO 1.5</H1>
+						<P ALIGN="CENTER">January 2003
+					</TD>
+					<TD WIDTH="74%" VALIGN="TOP">
+						<P>
+						<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="1" WIDTH="83%" BGCOLOR="#D0D0D0">
+							<TR>
+								<TD COLSPAN="2" BGCOLOR="#F0F0F0">
+									<P><B>Contents</B>
+								</TD>
+							</TR>
+							<TR>
+								<TD WIDTH="213" BGCOLOR="#FAFAFA">
+									<UL>
+										<LI><A HREF="#Intro">Introduction</A>
+										<LI><A HREF="#installation">Installation</A>
+										<LI><A HREF="#ImportantChanges">Important Changes</A>
+										<LI><A HREF="#NewFeatures">New Features</A>
+									</UL>
+								</TD>
+								<TD WIDTH="156" BGCOLOR="#FAFAFA">
+									<UL>
+										<LI><A HREF="#KnownIssues">Known Issues</A>
+										<LI><A HREF="#Futures">Futures</A>
+										<LI><A HREF="#support">Support</A>
+									</UL>
+								</TD>
+							</TR>
+						</TABLE>
+
+					</TD>
+				</TR>
+			</TABLE>
+
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="70%">
+				<TR>
+					<TD ALIGN="LEFT" background="img/tbltop_back.gif">
+						<P><IMG SRC="img/tbl_top2.gif" WIDTH="55" HEIGHT="11" ALIGN="BOTTOM" BORDER="0">
+					</TD>
+				</TR>
+				<TR BGCOLOR="#D2D2D2">
+					<TD>
+						<P>
+						<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="5">
+							<TR>
+								<TD ALIGN="CENTER">
+									<P ALIGN="CENTER"><A NAME="Intro"></A><B>Introduction</B>
+								</TD>
+							</TR>
+						</TABLE>
+
+					</TD>
+				</TR>
+				<TR>
+					<TD background="img/hr.gif">
+						<P><IMG SRC="img/hr.gif" WIDTH="610" HEIGHT="3" ALIGN="BOTTOM" BORDER="0">
+					</TD>
+				</TR>
+			</TABLE>
+
+			<TABLE BORDER="0" CELLPADDING="10" CELLSPACING="0" WIDTH="70%">
+				<TR>
+					<TD>
+						<P>AstaIO is one source compatible for Delphi 5, Delphi 6, Delphi 7 and Kylix 2 and 3. AstaNative Sockets are written
+						to the WinSocket and Linux Socket API. By default AstaIO servers run on port 9050.</P>
+						<P>This build includes SOAP support, Servers, Tutorials, a new <A HREF="docs\AstaIO.pdf">600+ Page PDF Manual</A>
+						and an updated <A HREF="docs\AstaIO.hlp">AstaIO help file</A>.</P>
+
+						<P>Updated AstaIO Information can always be found from the <A HREF="http://www.astatech.com/producs/astaio/">AstaIO
+						Page</A> on the ASTA Web Site.
+					</TD>
+				</TR>
+			</TABLE>
+
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="70%">
+				<TR>
+					<TD ALIGN="LEFT" background="img/tbltop_back.gif">
+						<P><IMG SRC="img/tbl_top2.gif" WIDTH="55" HEIGHT="11" ALIGN="BOTTOM" BORDER="0">
+					</TD>
+				</TR>
+				<TR BGCOLOR="#D2D2D2">
+					<TD>
+						<P>
+						<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="5">
+							<TR>
+								<TD ALIGN="CENTER">
+									<P ALIGN="CENTER"><A NAME="installation"></A><B>Installation</B>
+								</TD>
+							</TR>
+						</TABLE>
+
+					</TD>
+				</TR>
+				<TR>
+					<TD background="img/hr.gif">
+						<P><IMG SRC="img/hr.gif" WIDTH="610" HEIGHT="3" ALIGN="BOTTOM" BORDER="0">
+					</TD>
+				</TR>
+			</TABLE>
+
+			<TABLE BORDER="0" CELLPADDING="10" CELLSPACING="0" WIDTH="70%">
+				<TR>
+					<TD>
+						<P>AstaIO requires 2 packages to be installed an AstaSOAP package and then the AstaIO package.</P>
+						<P>For Delphi 6 first install Asta_SoapD6.bpl (which includes the ASTA XML Parser, Soap Units and AstaIO Base Sockets)
+						and then browse and install AstaIOD6.bpl</P>
+						<P><BR>
+						
+						<TABLE BORDER="1" WIDTH="100%">
+							<TR>
+								<TD WIDTH="33%">
+									<P><B>Delphi Version</B>
+								</TD>
+								<TD WIDTH="33%">
+									<P><B>ASTA Soap Package</B>
+								</TD>
+								<TD WIDTH="34%">
+									<P><B>ASTA IO Package</B>
+								</TD>
+							</TR>
+							<TR>
+								<TD WIDTH="33%">
+									<P>Delphi 5
+								</TD>
+								<TD WIDTH="33%">
+									<P>Asta_SoapD5.bpl
+								</TD>
+								<TD WIDTH="34%">
+									<P>AstaIOD5.bpl
+								</TD>
+							</TR>
+							<TR>
+								<TD WIDTH="33%">
+									<P>Delphi 6
+								</TD>
+								<TD WIDTH="33%">
+									<P>Asta_SoapD6.bpl
+								</TD>
+								<TD WIDTH="34%">
+									<P>AstaIOD6.bpl
+								</TD>
+							</TR>
+							<TR>
+								<TD WIDTH="33%">
+									<P>Delphi 7
+								</TD>
+								<TD WIDTH="33%">
+									<P>Asta_SoapD7.bpl
+								</TD>
+								<TD WIDTH="34%">
+									<P>AstaIOD7.bpl
+								</TD>
+							</TR>
+						</TABLE>
+</P>
+						<P>Current Tutorials, Servers, Help manual, Examples and Help files can be found on line. All but the Soap Examples
+						are included in install.
+						<UL>
+							<LI><A HREF="http://www.astatech.com/files/examples/AstaIO/AstaIOTutorials.exe">Tutorials</A>
+							<LI><A HREF="http://www.astatech.com/files/Servers/AstaIOServers.exe">Servers</A>
+							<LI><A HREF="http://www.astatech.com/docs/AstaIOHelp.zip">AstaIO Help</A>
+							<LI><A HREF="http://www.astatech.com/docs/AstaIO.pdf">AstaIO Manual</A>
+							<LI><A HREF="http://www.astatech.com/files/examples/AstaSoapExamples.exe">Soap Examples</A>
+						</UL>
+					</TD>
+				</TR>
+			</TABLE>
+</P>
+</CENTER>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="70%">
+				<TR>
+					<TD ALIGN="LEFT" background="img/tbltop_back.gif">
+						<P><IMG SRC="img/tbl_top2.gif" WIDTH="55" HEIGHT="11" ALIGN="BOTTOM" BORDER="0">
+					</TD>
+				</TR>
+				<TR BGCOLOR="#D2D2D2">
+					<TD>
+						<P>
+						<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="5">
+							<TR>
+								<TD ALIGN="CENTER">
+									<P ALIGN="CENTER"><A NAME="ImportantChanges"></A><B>Important Changes</B>
+								</TD>
+							</TR>
+						</TABLE>
+
+					</TD>
+				</TR>
+				<TR>
+					<TD background="img/hr.gif">
+						<P><IMG SRC="img/hr.gif" WIDTH="610" HEIGHT="3" ALIGN="BOTTOM" BORDER="0">
+					</TD>
+				</TR>
+			</TABLE>
+
+			<TABLE BORDER="0" CELLPADDING="10" CELLSPACING="0" WIDTH="70%">
+				<TR>
+					<TD>
+						<P>This build includes all the architectural changes for nestedDataSet support and we are now testing selects and
+						updates with nestedDataSets and working on tutorials.</P>
+
+						<P>An AstaIO ODBC driver available as part of the AstaIO Safari Kit.
+					</TD>
+				</TR>
+			</TABLE>
+</P>
+		</BLOCKQUOTE>
+	</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+<CENTER>
+<P>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="70%">
+	<TR>
+		<TD ALIGN="LEFT" background="img/tbltop_back.gif">
+			<P><IMG SRC="img/tbl_top2.gif" WIDTH="55" HEIGHT="11" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+	<TR BGCOLOR="#D2D2D2">
+		<TD>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="5">
+				<TR>
+					<TD ALIGN="CENTER">
+						<P ALIGN="CENTER"><A NAME="NewFeatures"></A><B>New Features</B>
+					</TD>
+				</TR>
+			</TABLE>
+
+		</TD>
+	</TR>
+	<TR>
+		<TD background="img/hr.gif">
+			<P><IMG SRC="img/hr.gif" WIDTH="610" HEIGHT="3" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+</TABLE>
+
+<TABLE BORDER="0" CELLPADDING="10" CELLSPACING="0" WIDTH="70%">
+	<TR>
+		<TD>
+			<P>This build includes:
+			<UL>
+				<LI>ExecSQLTransaction
+				<LI>Multiple Parameterized Queries from TAstaIOClientQueries
+				<LI>AstaIOClientDataSet and AstaIODataSetProvider
+				<LI>NestedDataSet Support
+				<LI>Windows Server format that allows for servers to be run as NT services or Normal EXE's. this build contains
+				ADO, IBObjects and IbExpress examples using this format.
+			</UL>
+		</TD>
+	</TR>
+</TABLE>
+</P>
+</CENTER>
+<CENTER>
+<P>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="70%">
+	<TR>
+		<TD ALIGN="LEFT" background="img/tbltop_back.gif">
+			<P><IMG SRC="img/tbl_top2.gif" WIDTH="55" HEIGHT="11" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+	<TR BGCOLOR="#D2D2D2">
+		<TD>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="5">
+				<TR>
+					<TD ALIGN="CENTER">
+						<P ALIGN="CENTER"><A NAME="KnownIssues"></A><B>Known Issues</B>
+					</TD>
+				</TR>
+			</TABLE>
+
+		</TD>
+	</TR>
+	<TR>
+		<TD background="img/hr.gif">
+			<P><IMG SRC="img/hr.gif" WIDTH="610" HEIGHT="3" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+</TABLE>
+
+<TABLE BORDER="0" CELLPADDING="10" CELLSPACING="0" WIDTH="70%">
+	<TR>
+		<TD>
+			<UL>
+				<LI>NestedDataSets are still being tested
+			</UL>
+		</TD>
+	</TR>
+</TABLE>
+</P>
+</CENTER>
+<CENTER>
+<P>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="70%">
+	<TR>
+		<TD ALIGN="LEFT" background="img/tbltop_back.gif">
+			<P><IMG SRC="img/tbl_top2.gif" WIDTH="55" HEIGHT="11" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+	<TR BGCOLOR="#D2D2D2">
+		<TD>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="5">
+				<TR>
+					<TD ALIGN="CENTER">
+						<P ALIGN="CENTER"><A NAME="Futures"></A><B>Futures</B>
+					</TD>
+				</TR>
+			</TABLE>
+
+		</TD>
+	</TR>
+	<TR>
+		<TD background="img/hr.gif">
+			<P><IMG SRC="img/hr.gif" WIDTH="610" HEIGHT="3" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+</TABLE>
+
+<TABLE BORDER="0" CELLPADDING="10" CELLSPACING="0" WIDTH="70%">
+	<TR>
+		<TD>
+			<UL>
+				<LI>Provider Broadcasts
+			</UL>
+		</TD>
+	</TR>
+</TABLE>
+</P>
+
+<P>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="70%">
+	<TR>
+		<TD ALIGN="LEFT" background="img/tbltop_back.gif">
+			<P><IMG SRC="img/tbl_top2.gif" WIDTH="55" HEIGHT="11" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+	<TR BGCOLOR="#D2D2D2">
+		<TD>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="5">
+				<TR>
+					<TD ALIGN="CENTER">
+						<P ALIGN="CENTER"><A NAME="Support"></A><B>Support</B>
+					</TD>
+				</TR>
+			</TABLE>
+
+		</TD>
+	</TR>
+	<TR>
+		<TD background="img/hr.gif">
+			<P><IMG SRC="img/hr.gif" WIDTH="610" HEIGHT="3" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+</TABLE>
+
+<TABLE BORDER="0" CELLPADDING="10" CELLSPACING="0" WIDTH="70%">
+	<TR>
+		<TD>
+			<P>There are public newsgroups for AstaIO that can be found by pointing your newsgroup reader to the <A HREF="news://news.astatech.com">news.astatech.com</A>
+			newsgroup.</P>
+			<P>Email support is available from <A HREF="mailto:support@astatech.com">support@astatech.com</A></P>
+
+			<P>You may contact ASTA directly at +1 208.342.7800 or Email to <A HREF="mailto:info@astatech.com">info@astatech.com</A>
+		</TD>
+	</TR>
+</TABLE>
+
+</CENTER>
+
+</BODY>
+
+</HTML>

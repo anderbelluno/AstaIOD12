@@ -1,0 +1,40 @@
+-$A8
+-$B-
+-$C+
+-$D+
+-$E-
+-$F-
+-$G+
+-$H+
+-$I+
+-$J+
+-$K-
+-$L+
+-$M-
+-$N+
+-$O+
+-$P+
+-$Q-
+-$R-
+-$S-
+-$T-
+-$U-
+-$V+
+-$W-
+-$X+
+-$YD
+-$Z1
+-cg
+-AWinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+-H+
+-W+
+-$M16384,1048576
+-K4194304
+-E"z:\AstaIOD6Output"
+-N"z:\AstaIOD6Output"
+-LE"z:\AstaIOD6Output"
+-LN"z:\AstaIOD6Output"
+-U"g:\d\un\astaIO;g:\d\un\Soap;c:\Delphi6\Lib;c:\Delphi6\Bin;c:\Delphi6\Imports;c:\Delphi6\Projects\Bpl;g:\dbisam\d600\lib;g:\Apollo\VCL52\D6;g:\d\un\remotecontrol\dec8\components;c:\program files\intraweb\libd6;c:\turbopower\ff2;c:\ads\tdataset\delphi6;c:\program files\sqldir\delphi6;c:\Delphi6\DOA;C:\MSADODAC\Delphi6;g:\d\un\voip\july20\delphipkg;f:\elpack\Code\Source;c:\program files\seleqt\instantobjects\delphi6\lib"
+-O"g:\d\un\astaIO;g:\d\un\Soap;c:\Delphi6\Lib;c:\Delphi6\Bin;c:\Delphi6\Imports;c:\Delphi6\Projects\Bpl;g:\dbisam\d600\lib;g:\Apollo\VCL52\D6;g:\d\un\remotecontrol\dec8\components;c:\program files\intraweb\libd6;c:\turbopower\ff2;c:\ads\tdataset\delphi6;c:\program files\sqldir\delphi6;c:\Delphi6\DOA;C:\MSADODAC\Delphi6;g:\d\un\voip\july20\delphipkg;f:\elpack\Code\Source;c:\program files\seleqt\instantobjects\delphi6\lib"
+-I"g:\d\un\astaIO;g:\d\un\Soap;c:\Delphi6\Lib;c:\Delphi6\Bin;c:\Delphi6\Imports;c:\Delphi6\Projects\Bpl;g:\dbisam\d600\lib;g:\Apollo\VCL52\D6;g:\d\un\remotecontrol\dec8\components;c:\program files\intraweb\libd6;c:\turbopower\ff2;c:\ads\tdataset\delphi6;c:\program files\sqldir\delphi6;c:\Delphi6\DOA;C:\MSADODAC\Delphi6;g:\d\un\voip\july20\delphipkg;f:\elpack\Code\Source;c:\program files\seleqt\instantobjects\delphi6\lib"
+-R"g:\d\un\astaIO;g:\d\un\Soap;c:\Delphi6\Lib;c:\Delphi6\Bin;c:\Delphi6\Imports;c:\Delphi6\Projects\Bpl;g:\dbisam\d600\lib;g:\Apollo\VCL52\D6;g:\d\un\remotecontrol\dec8\components;c:\program files\intraweb\libd6;c:\turbopower\ff2;c:\ads\tdataset\delphi6;c:\program files\sqldir\delphi6;c:\Delphi6\DOA;C:\MSADODAC\Delphi6;g:\d\un\voip\july20\delphipkg;f:\elpack\Code\Source;c:\program files\seleqt\instantobjects\delphi6\lib"

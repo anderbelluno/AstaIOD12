@@ -1,0 +1,107 @@
+[03-Feb-2003 21:40:37:711] **** Log File Opened ****
+1024 [03-Feb-2003 21:40:37:711] Starting AstaIO daemon server version 1.0
+1024 [03-Feb-2003 21:40:37:713] Calling TServerDataModule.DataModuleCreate
+1024 [03-Feb-2003 21:40:37:733] ServerWire activated on port 9555
+1024 [03-Feb-2003 21:40:37:733] AstaIO server daemon activated at 02/03/2003 21:40:37
+1024 [03-Feb-2003 21:40:37:733] ***** Starting new log *****
+1024 [03-Feb-2003 21:40:37:733] AstaIO server daemon looping 02/03/2003 21:40:37
+2051 [03-Feb-2003 21:41:26:739] Calling TServerDataModule.ServerWireClientConnect
+2051 [03-Feb-2003 21:41:26:739] -- UserRecord.UserInfo = 192.168.1.100:1054:
+2051 [03-Feb-2003 21:41:26:740] -- UserRecord.UserName = 
+2051 [03-Feb-2003 21:41:26:740] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:26:740] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:26:745] Data Sent:41 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:26:745] Authenticate def:abc ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:26:745] Data Received 66 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:28:095] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:28:095] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:28:096] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:28:096] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:28:096] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:28:096] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:28:096] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:28:096] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:28:862] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:28:862] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:28:862] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:28:862] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:28:862] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:28:862] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:28:862] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:28:862] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:29:270] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:29:270] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:29:270] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:29:270] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:29:270] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:29:270] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:29:270] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:29:270] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:29:480] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:29:480] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:29:480] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:29:480] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:29:480] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:29:480] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:29:480] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:29:480] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:29:679] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:29:679] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:29:679] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:29:679] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:29:679] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:29:679] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:29:679] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:29:680] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:29:890] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:29:890] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:29:890] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:29:890] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:29:890] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:29:890] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:29:890] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:29:890] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:070] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:070] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:30:070] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:30:070] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:30:070] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:30:070] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:30:070] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:30:070] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:252] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:252] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:30:252] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:30:252] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:30:252] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:30:252] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:30:252] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:30:252] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:432] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:432] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:30:432] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:30:432] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:30:432] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:30:432] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:30:432] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:30:432] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:608] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:608] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:30:608] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:30:608] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:30:608] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:30:608] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:30:608] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:30:608] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:754] Data Received 58 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:30:754] Calling TServerDataModule.ServerWireCodedMessage
+2051 [03-Feb-2003 21:41:30:754] -- UserRecord.UserInfo = 192.168.1.100:1054:def
+2051 [03-Feb-2003 21:41:30:754] -- UserRecord.UserName = def
+2051 [03-Feb-2003 21:41:30:754] -- UserRecord.AppName = 
+2051 [03-Feb-2003 21:41:30:754] -- UserRecord.AppVersion = 
+2051 [03-Feb-2003 21:41:30:754] -- Msg = Anyone home???
+2051 [03-Feb-2003 21:41:30:754] Data Sent:68 ->192.168.1.100:1054
+2051 [03-Feb-2003 21:41:31:769] TServerDataModule.ServerWireClientDisconnect
+2051 [03-Feb-2003 21:41:31:769] -- Client is TAstaSocket
+1024 [03-Feb-2003 21:44:25:851] AstaIO server daemon shutting down at 02/03/2003 21:44:25
+1024 [03-Feb-2003 21:44:25:851] **** Log File Closed ****

@@ -1,0 +1,124 @@
+package AstaIO_rD12;
+
+{$R *.res}
+{$R *.otares}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'ASTA InterOP CrossPlatform Web Services'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  vcl,
+  rtl,
+  dbrtl;
+
+contains
+  AstaIOWinBase in 'AstaIOWinBase.pas',
+  AstaIOClientRemoteDataSet in 'AstaIOClientRemoteDataSet.pas',
+  AstaIOClientWire in 'AstaIOClientWire.pas',
+  AstaIOCustomDataSet in 'AstaIOCustomDataSet.pas',
+  AstaIODataBasePlugin in 'AstaIODataBasePlugin.pas',
+  AstaIODataSetTransport in 'AstaIODataSetTransport.pas',
+  AstaIOProvider in 'AstaIOProvider.pas',
+  AstaIOMetaData in 'AstaIOMetaData.pas',
+  AstaIOMetadataListView in 'AstaIOMetadataListView.pas',
+  AstaIOMetadataTreeView in 'AstaIOMetadataTreeView.pas',
+  AstaIOMetadataTablesView in 'AstaIOMetadataTablesView.pas',
+  AstaIOExecServerMethod in 'AstaIOExecServerMethod.pas',
+  AstaIOServerMethod in 'AstaIOServerMethod.pas',
+  AstaIOSQLParser in 'AstaIOSQLParser.pas',
+  AstaIOIBInfo in 'AstaIOIBInfo.pas',
+  AstaIODBInfo in 'AstaIODBInfo.pas',
+  AstaIOIProvider in 'AstaIOIProvider.pas',
+  AstaIOServerWire in 'AstaIOServerWire.pas',
+  AstaIOClientIProvider in 'AstaIOClientIProvider.pas',
+  AstaIOSQLGenerator in 'AstaIOSQLGenerator.pas',
+  AstaIONativeClientWire in 'AstaIONativeClientWire.pas',
+  AstaIONativeClientMsg in 'AstaIONativeClientMsg.pas',
+  AstaIOSocketServer in 'AstaIOSocketServer.pas',
+  AstaIOStatusBar in 'AstaIOStatusBar.pas',
+  AstaIOUpdateSQL in 'AstaIOUpdateSQL.pas',
+  AstaIOLowCore in 'AstaIOLowCore.pas',
+  AstaIOWebClientWire in 'AstaIOWebClientWire.pas',
+  AstaIOPDAServerPlugin in 'AstaIOPDAServerPlugin.pas',
+  AstaIOSQLDataSet in 'AstaIOSQLDataSet.pas',
+  AstaIOCloneDataSet in 'AstaIOCloneDataSet.pas',
+  AstaIODataSetProvider in 'AstaIODataSetProvider.pas',
+  AstaIOClientDataSet in 'AstaIOClientDataSet.pas',
+  AstaIOAutoUpgrade in 'AstaIOAutoUpgrade.pas',
+  AstaIOStringServerWire in 'AstaIOStringServerWire.pas',
+  AstaIOStringClientWire in 'AstaIOStringClientWire.pas',
+  AstaIOPdaUtils in 'AstaIOPdaUtils.pas',
+  AstaIOWinInet in 'AstaIOWinInet.pas',
+  AstaIOASAInfo in 'AstaIOASAInfo.pas',
+  AstaIOMSSqlInfo in 'AstaIOMSSqlInfo.pas',
+  AstaIOStitchSocket in 'AstaIOStitchSocket.pas',
+  AstaIOPostgreSQLInfo in 'AstaIOPostgreSQLInfo.pas',
+  AstaIOMySQLInfo in 'AstaIOMySQLInfo.pas',
+  AstaIOOracleInfo in 'AstaIOOracleInfo.pas',
+  AstaIOASEInfo in 'AstaIOASEInfo.pas',
+  AstaIOSessionCollection in 'AstaIOSessionCollection.pas',
+  AstaIODB2Info in 'AstaIODB2Info.pas',
+  AstaIOBaseRdbmsInfo in 'AstaIOBaseRdbmsInfo.pas',
+  AstaIOThread in 'AstaIOThread.pas',
+  AstaIOJavaServerPlugin in 'AstaIOJavaServerPlugin.pas',
+  AstaIOBroadcast in 'AstaIOBroadcast.pas',
+  AstaIOSessionList in 'AstaIOSessionList.pas',
+  AstaIOStatelessUserList in 'AstaIOStatelessUserList.pas',
+  AstaIOStrUtil in 'AstaIOStrUtil.pas',
+  AstaIOUserList in 'AstaIOUserList.pas',
+  AstaIOIndexes in 'AstaIOIndexes.pas',
+  AstaIOClientWireConnector in 'AstaIOClientWireConnector.pas',
+  AstaIODes in 'AstaIODes.pas',
+  AstaIOClientMsgWire in 'AstaIOClientMsgWire.pas',
+  AstaIOLoginUnit in 'AstaIOLoginUnit.pas' {AstaLoginDialog},
+  AstaIOMD5 in 'AstaIOMD5.pas',
+  AstaIOMessagePacker in 'AstaIOMessagePacker.pas',
+  AstaIOQueryList in 'AstaIOQueryList.pas',
+  AstaIOThreadedDataSet in 'AstaIOThreadedDataSet.pas',
+  AstaIOZLib in 'AstaIOZLib.pas',
+  AstaIOZLibCompress in 'AstaIOZLibCompress.pas',
+  AstaIOPdaBase in 'AstaIOPdaBase.pas',
+  AstaIOParamList in 'AstaIOParamList.pas',
+  AstaIODataSetUtils in 'AstaIODataSetUtils.pas',
+  AstaIOServerPlugin in 'AstaIOServerPlugin.pas',
+  AstaIOUpdateObjectBase in 'AstaIOUpdateObjectBase.pas',
+  AstaIODBConst in 'AstaIODBConst.pas',
+  AstaIOConst in 'AstaIOConst.pas',
+  AstaIOBlobList in 'AstaIOBlobList.pas',
+  AstaIOFilter in 'AstaIOFilter.pas',
+  AstaIOJavaUtils in 'AstaIOJavaUtils.pas',
+  AstaIOSQLParams in 'AstaIOSQLParams.pas',
+  AstaIOSQLUtils in 'AstaIOSQLUtils.pas',
+  AstaIOutBase64 in 'AstaIOutBase64.pas',
+  AstaIODBList in 'AstaIODBList.pas',
+  AstaIOBits in 'AstaIOBits.pas',
+  AstaIOUtil in 'AstaIOUtil.pas',
+  AstaIOResources in 'AstaIOResources.pas',
+  AstaIOReaderWriter in 'AstaIOReaderWriter.pas',
+  AstaIOFList in 'AstaIOFList.pas';
+
+end.

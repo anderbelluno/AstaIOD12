@@ -1,0 +1,24 @@
+ Volume in drive E has no label.
+ Volume Serial Number is 5820-4334
+
+ Directory of E:\d\un\Xml
+
+02/26/02  11:50a                 1,763 Asta3XMLComponent.pas
+02/08/02  12:01p                   861 Asta3XMLUtils.pas
+02/10/02  12:46p                 1,332 AstaXMLComponent.pas
+01/16/02  12:00a                44,445 AstaXML_dom.pas
+12/29/01  11:55p                18,584 astaxml_enc8.pas
+12/29/01  11:55p                 9,117 astaxml_encoding.pas
+11/06/01  12:38a                 1,644 astaxml_xmldump.pas
+01/12/02  11:02a                36,789 astaxml_xmlv.pas
+12/29/01  11:55p                 6,927 astaxml_xmlw.pas
+01/16/02  09:10p                 5,606 Base64.pas
+11/12/01  05:53p               157,654 MSXML_TLB.pas
+11/23/01  07:36p                 2,415 UUX.pas
+12/29/01  11:55p                 1,774 xmldump.pas
+01/16/02  12:00a                 3,264 xmlv_dump.pas
+02/26/02  11:54a                18,661 XML_DS.pas
+02/16/02  08:26a                11,439 XML_Thunk.pas
+12/20/01  11:25a                19,211 XSD.pas
+              17 File(s)        341,486 bytes
+                            967,548,928 bytes free

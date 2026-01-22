@@ -1,0 +1,9 @@
+uux.pas
+XML_DS.pas
+XSD.pas
+XML_Thunk.pas
+//Astanative
+astaxml_dom.pas
+astaxml_xmlv.pas
+astaxml_xmlw.pas
+
