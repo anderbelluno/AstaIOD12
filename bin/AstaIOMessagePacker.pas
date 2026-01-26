@@ -713,7 +713,7 @@ var
 begin
  R:=TAstaMessageReader.Create;
  try
-   r.Setup(pchar(s));
+   r.Setup(PAnsiChar(s));
    result:='Size is '+IntToStr(r.size)+#13;
    result:=result+'Count is '+InttoStr(r.Count)+#13;
    result:=result+'UserName is '+r.UserName+#13;

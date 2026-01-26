@@ -45,6 +45,7 @@ type
 
 function AstaPackDataSet(U: TUserRecord; DataSet: TDataSet; MaxRowsToReturn, SQLOptionInteger: Integer; CallFirst: Boolean; ProcessProc: ContinueToProcessType): AnsiString;
 function FieldDefsToString(D: TdataSet;Delphi5Client:Boolean): AnsiString;
+procedure DataSetSetFieldDefs(D: TAstaIODataSet; const S: AnsiString);
 
 implementation
 
@@ -66,38 +67,40 @@ var
   I, T, Frowcounter: Integer;
   FSQLOptions: TAstaDataSetOptionSet;
 
-  function NullBoolean(T: TField): string;
+  function NullBoolean(T: TField): AnsiString;
   begin
     if T.IsNull then
       result := NullField
     else
-      result := IntToStr(Ord(t.AsBoolean));
+      result := AnsiString(IntToStr(Ord(t.AsBoolean)));
   end;
 
-  function NullAsString(T: tField): string;
+  function NullAsString(T: tField): AnsiString;
   begin
     if T.IsNull then
       result := NullField
     else
-      result := t.AsString;
+      result := AnsiString(t.AsString);
   end;
 
-  function NullAsWideString(T: TField): String;
+  function NullAsWideString(T: TField): AnsiString;
   begin
-    Result := AstaWideStrString((T as TWideStringField).Value, T.IsNull);
+    Result := AnsiString(AstaWideStrString((T as TWideStringField).Value, T.IsNull));
   end;
 
-  function MemoAsString(T: tField): string;
+  function MemoAsString(T: tField): AnsiString;
+  var
+    S: AnsiString;
   begin
     if T.IsNull then
       result := AstaIntegerString(-1)
     else begin
-      Result := T.Asstring;
-      Result := AstaIntegerString(Length(Result)) + Result;
+      S := AnsiString(T.Asstring);
+      Result := AstaIntegerString(Length(S)) + S;
     end;
   end;
 
-  function NullFloatString(T: TField): string;
+  function NullFloatString(T: TField): AnsiString;
   begin
 {$ifdef linux} //dbexpress bug kylix only?
     if t.AsString='' then
@@ -110,7 +113,7 @@ var
       result := AstaFloatString(t.AsFloat);
   end;
 
-  function NullCurrencyString(T: TField): string;
+  function NullCurrencyString(T: TField): AnsiString;
   begin
 {$ifdef linux} //dbexpress bug kylix only?
     if t.AsString='' then
@@ -124,7 +127,7 @@ var
   end;
 
 {$ifdef Delphi6AndUp}
-  function NullFmtBcdString(T: TField): string;
+  function NullFmtBcdString(T: TField): AnsiString;
   begin
 {$ifdef linux} //dbexpress bug kylix only?
     if t.AsString = '' then
@@ -138,7 +141,7 @@ var
   end;
 {$endif}
 
-  function NullAsDate(T: Tfield): string;
+  function NullAsDate(T: Tfield): AnsiString;
   begin
     if T.IsNull then
       result := NullField
@@ -146,7 +149,7 @@ var
       result := AstaFloatString(t.AsDateTime);
   end;
 
-  function NullAstimeStamp(T: Tfield): string;
+  function NullAstimeStamp(T: Tfield): AnsiString;
   begin
     if T.IsNull then
       result := NullField
@@ -249,7 +252,7 @@ begin
     //DataSet.Close;//must close all queries on the server after packup!
     DataSet.EnableControls;
     SetLength(LResult, T);
-    Result := string(LResult);
+    Result := LResult;
   end;
 end;
 
@@ -306,9 +309,9 @@ begin
   end;
 end;
 
-procedure DataSetSetFieldDefs(D: TAstaIODataSet; const S: string);
+procedure DataSetSetFieldDefs(D: TAstaIODataSet; const S: AnsiString);
 var
-  SS: string;
+  SS: AnsiString;
   i: integer;
 begin
   if  Assigned(D) then

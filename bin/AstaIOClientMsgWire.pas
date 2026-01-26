@@ -139,11 +139,11 @@ type
     FSendGetLock: TCriticalSection;
     FSendGet: Boolean;
     FSendGetReceived: TAdvEvent;
-    FSendGetMessage: String;
+    FSendGetMessage: AnsiString;
     FSendGetSignature: Integer;
     FActualEncryption: TAstaEncryption;
     FOnUserKeyGeneration: TAstaClientUserKeyGenerationEvent;
-    FUserKey: String;
+    FUserKey: AnsiString;
     FEncryptKeyIn,FEncryptKeyOut: AnsiString;
     procedure SetEncryption(Value: TAstaEncryption);
     procedure SetCompression(Value: TAstaCompression);

@@ -256,8 +256,6 @@ begin
       Result := FBookMark - 1;
       Exit;
     end;
-  // ???? Here must be assembler stuff:
-  // find Self in __TList(__TCollection(Collection).FItems).FList
   Result := inherited Index;
 end;
 
@@ -304,7 +302,8 @@ begin
   size := Length(AnsiVal);
   if size >= DBList.FieldSize(Field) then
     size := DBList.FieldSize(Field);
-  Move(PAnsiChar(AnsiVal)^, GetDataPointer(Field)^, size);
+  if size > 0 then
+    Move(PAnsiChar(AnsiVal)^, GetDataPointer(Field)^, size);
   SetNullFlag(Field, IsNull);
 end;
 
@@ -316,7 +315,8 @@ begin
   size := Length(Value);
   if size >= DBList.FieldSize(Field) then
     size := DBList.FieldSize(Field);
-  Move(PAnsiChar(Value)^, GetDataPointer(Field)^, size);
+  if size > 0 then
+    Move(PAnsiChar(Value)^, GetDataPointer(Field)^, size);
   SetNullFlag(Field, IsNull);
 end;
 
@@ -328,7 +328,8 @@ begin
   size := Length(Value) * SizeOf(WideChar);
   if size >= DBList.FieldSize(Field) then
     size := DBList.FieldSize(Field);
-  Move(PWideChar(Value)^, GetDataPointer(Field)^, size);
+  if size > 0 then
+    Move(PWideChar(Value)^, GetDataPointer(Field)^, size);
   SetNullFlag(Field, IsNull);
 end;
 
@@ -349,7 +350,7 @@ var
   p: Pointer;
 begin
   p := GetPointer(Field);
-  string(p^) := S;
+  AnsiString(p^) := AnsiString(S);
 end;
 
 procedure TAstaDBListItem.PutStringBlob(Field: Integer; Value: string; IsNull: Boolean);
@@ -476,9 +477,18 @@ end;
 {$endif}
 
 function TAstaDBListItem.GetString(Field: Integer): string;
+var
+  A: AnsiString;
 begin
-  SetLength(Result, DBList.FieldSize(Field));
-  strlcopy(pchar(Result), GetDataPointer(Field), DBList.FieldSize(Field));
+  if DBList.FFieldList.Items[Field].FFieldType = ftWideString then
+    Result := string(PWideChar(GetDataPointer(Field)))
+  else
+  begin
+    SetLength(A, DBList.FieldSize(Field));
+    if Length(A) > 0 then
+      Move(GetDataPointer(Field)^, PAnsiChar(A)^, DBList.FieldSize(Field));
+    Result := string(PAnsiChar(A));
+  end;
 end;
 
 
@@ -494,7 +504,7 @@ end;
 
 function TAstaDBListItem.GetAnsiString(Field: Integer): string;
 begin
-  Result := string(GetDataPointer(Field)^);
+  Result := string(PAnsiChar(GetDataPointer(Field)));
 end;
 
 function TAstaDBListItem.GetPointer(Field: Integer): Pointer;
@@ -657,11 +667,20 @@ begin
     Clearbit(PInteger(FieldAddrInBuffer)^[Spot], AdjustFieldNullOffset(Field));
 end;
 
+
 function TAstaDBList.GetbufferString(Buffer: Pointer; Field: Integer): string;
+var
+  A: AnsiString;
 begin
-  SetLength(Result, FieldSize(Field));
-  strlcopy(pchar(Result), GetBufferDataPointer(Buffer, Field), FieldSize(Field));
-  SetLength(Result, StrLen(pchar(Result)));
+  if FFieldList.Items[Field].FFieldType = ftWideString then
+    Result := string(PWideChar(GetBufferDataPointer(Buffer, Field)))
+  else
+  begin
+    SetLength(A, FieldSize(Field));
+    if Length(A) > 0 then
+      Move(GetBufferDataPointer(Buffer, Field)^, PAnsiChar(A)^, FieldSize(Field));
+    Result := string(PAnsiChar(A));
+  end;
 end;
 
 function TAstaDBList.GetBufferInteger(Buffer: Pointer; Field: Integer): Integer;

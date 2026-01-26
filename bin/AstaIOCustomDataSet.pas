@@ -30,7 +30,11 @@ unit AstaIOCustomDataSet;
 
 interface
 
+{$IFDEF UNICODE}
+uses DB, AnsiStrings,
+{$ELSE}
 uses DB,
+{$ENDIF}
   {$ifdef ver130}
   Windows,
   {$ENDIF}
@@ -40,7 +44,6 @@ uses DB,
   {$ifdef AstaIOXML}
   AstaIOXMLComponent,
   {$endif}
-  {$IFDEF UNICODE}AnsiStrings,{$ENDIF}
   Classes,
   SysUtils,
   AstaIODBList,
@@ -185,7 +188,7 @@ type
     //procedure AddFieldsFromString(S: string);
     procedure SetBufferSizeFromFieldList;
     function FieldSizeFromField(Field: Tfield): Integer;
-    function GetActiveRecordBuffer: PChar;overload;
+    function GetActiveRecordBuffer: PAnsiChar;overload;
     {Procedure SetupFilteredRanges;}
     procedure MasterChildFilter(DataSet: TDataSet; var Accept: Boolean);
     function MasterDetailFilter: Boolean;
@@ -307,7 +310,8 @@ type
     procedure InternalPost; override;
     procedure InternalDelete; override;
     procedure SetFieldDataNoDataEvent(Field: TField; Buffer: Pointer);
-    procedure SetFieldData(Field: TField; Buffer: Pointer); override;
+    procedure SetFieldData(Field: TField; Buffer: Pointer); overload; override;
+    procedure SetFieldData(Field: TField; Buffer: TValueBuffer); overload; override;
     procedure InternalFirst; override;
     procedure InternalLast; override;
     procedure InternalHandleException; override;
@@ -383,7 +387,8 @@ type
     procedure DeleteIndex(const AIndexName: String);
     function CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream; override;
     property BlobList: TAstaBlobList read FBlobList write FBlobList;
-    function GetFieldData(Field: TField; Buffer: Pointer): Boolean; override;
+    function GetFieldData(Field: TField; Buffer: Pointer): Boolean; overload; override;
+    function GetFieldData(Field: TField; var Buffer: TValueBuffer): Boolean; overload; override;
     function BookmarkValid(Bookmark: TBookmark): Boolean; override;
     procedure DisposeAstaList;
     function FilterCount: integer;
@@ -1353,9 +1358,10 @@ begin
   BindFields(true);
   GetMem(FFldOffs, sizeof(Integer) * FAstaList.FFieldList.Count);
   j := 0;
-  for i := 0 to FAstaList.FFieldList.Count - 1 do begin
+  for i := 0 to FAstaList.FFieldList.Count - 1 do
+  begin
     FFldOffs^[i] := j;
-    Inc(j, FastaList.FFieldList.items[i].FFieldSize);
+    Inc(j, FAstaList.FFieldList.Items[i].FFieldSize);
   end;
 
   FRecInfoOfs := FRawBufSize;
@@ -1376,14 +1382,18 @@ var
   FieldAddrInBuffer: Pointer;
   pChanged: PInt;
 begin
-  spot := ((Field.FieldNo - 1) div 32);
-  FieldAddrInBuffer := FAstaList.GetNullBufferFromBuffer(Buffer);
-  pChanged := PInt(Integer(FieldAddrInBuffer) + Spot * sizeof(Integer));
-  if Changed then
-    Setbit(pChanged^, FAstaList.AdjustFieldNullOffset(Field.FieldNo - 1))
-  else
-    Clearbit(pChanged^, FAstaList.AdjustFieldNullOffset(Field.FieldNo - 1));
-  if not FDirectWrite then begin
+  if (FAstaList <> nil) and (Buffer <> nil) then
+  begin
+    Spot := ((Field.FieldNo - 1) div 32);
+    FieldAddrInBuffer := FAstaList.GetNullBufferFromBuffer(Buffer);
+    pChanged := PInt(Integer(FieldAddrInBuffer) + Spot * SizeOf(Integer));
+    if Changed then
+      SetBit(pChanged^, FAstaList.AdjustFieldNullOffset(Field.FieldNo - 1))
+    else
+      ClearBit(pChanged^, FAstaList.AdjustFieldNullOffset(Field.FieldNo - 1));
+  end;
+  if not FDirectWrite then
+  begin
     FIndexes.RecordCheckUpdate(Field);
     FAggregates.RecordCheckUpdate(Field);
   end;
@@ -1395,10 +1405,14 @@ var
   FieldAddrInBuffer: Pointer;
   pChanged: PInt;
 begin
-  spot := ((Field.FieldNo - 1) div 32);
-  FieldAddrInBuffer := FAstaList.GetNullBufferFromBuffer(Buffer);
-  pChanged := PInt(Integer(FieldAddrInBuffer) + Spot * sizeof(Integer));
-  result := TestBit(pChanged^, FAstaList.AdjustFieldNullOffset(Field.FieldNo - 1));
+  Result := False;
+  if (FAstaList <> nil) and (Buffer <> nil) then
+  begin
+    Spot := ((Field.FieldNo - 1) div 32);
+    FieldAddrInBuffer := FAstaList.GetNullBufferFromBuffer(Buffer);
+    pChanged := PInt(Integer(FieldAddrInBuffer) + Spot * SizeOf(Integer));
+    Result := TestBit(pChanged^, FAstaList.AdjustFieldNullOffset(Field.FieldNo - 1));
+  end;
 end;
 
 procedure TAstaIOCustomDataset.InternalInitFieldDefs;
@@ -1716,7 +1730,7 @@ begin
   end
   else
     item := FAstaList.InsertRow(FIndexes.Position, FLastBookMark);
-  item.GetFromBuffer(PChar(Buffer));
+  item.GetFromBuffer(PWideChar(Buffer));
   try
     FIndexes.RecordInserted(item);
     FAggregates.RecordInserted(item);
@@ -1746,7 +1760,7 @@ begin
   else
     item := FIndexes.Rec;
 
-  item.GetFromBuffer(PChar(ActiveBuffer));
+  item.GetFromBuffer(PWideChar(ActiveBuffer));
   try
     if State <> dsEdit then begin
       FIndexes.RecordInserted(item);
@@ -1877,7 +1891,7 @@ begin
           end;
       end;
       if (Result = grOK) and (newRec <> nil) then begin
-        newRec.PutToBuffer(PChar(Buffer));
+        newRec.PutToBuffer(PWideChar(Buffer));
         with PRecInfo(PByte(Buffer) + FRecInfoOfs)^ do begin
           BookmarkFlag := bfCurrent;
           Bookmark := FIndexes.BookMark;
@@ -1973,8 +1987,8 @@ end;
 function TAstaIOCustomDataset.GetFieldData(Field: TField; Buffer: Pointer): Boolean;
 var
   FieldAddrInbuffer : Pointer;
-  SourceBuffer :PChar;
-  Pc :PChar;
+  SourceBuffer :PAnsiChar;
+  Pc :PAnsiChar;
 begin
   Result := False;
   try
@@ -1983,7 +1997,7 @@ begin
     if Field.FieldKind in [fkCalculated, fkLookup] then begin
       SourceBuffer := GetActiveRecordBuffer;
       if Assigned(SourceBuffer) then begin
-       SourceBuffer := PChar(PByte(SourceBuffer) + FStartCalculated + Field.Offset);
+       SourceBuffer := PAnsiChar(PByte(SourceBuffer) + FStartCalculated + Field.Offset);
         if Buffer = nil then begin// IsNull calls GetFieldData with Buffer as nil
           Result := PBoolean(SourceBuffer)^;
           Exit;
@@ -1991,7 +2005,7 @@ begin
         if not PBoolean(SourceBuffer)^ then
           Exit
         else begin
-          Pc := PChar(PByte(SourceBuffer) + 1);
+          Pc := PAnsiChar(PByte(SourceBuffer) + 1);
           Move(Pc^, Buffer^, Field.DataSize);
         end;
         Result := True;
@@ -2010,7 +2024,6 @@ begin
       if (Field.FieldKind in [fkCalculated, fkLookup]) then
         Result := True
       else
-       //returning Not Null for calc field as the get changed flag only works for normal fields
         Result := GetChangedFlag(Field, SourceBuffer);
       Exit;
     end;
@@ -2028,7 +2041,7 @@ begin
     case Field.DataType of
       ftString,
         ftFixedChar,
-        ftguid      : {$IFDEF UNICODE}System.AnsiStrings.{$ENDIF}StrLCopy(PAnsiChar(Buffer), PAnsiChar(FieldAddrInBuffer), FieldSizeFromField(Field));
+        ftguid      : AnsiStrings.StrLCopy(PAnsiChar(Buffer), PAnsiChar(FieldAddrInBuffer), FieldSizeFromField(Field));
       ftwidestring,
         ftvarbytes,
         ftbytes     : system.move(FieldAddrInbuffer^, Buffer^, FieldSizeFromField(Field));
@@ -2064,6 +2077,17 @@ begin
   end;
   Result := GetChangedFlag(Field, SourceBuffer);
 end;
+
+function TAstaIOCustomDataset.GetFieldData(Field: TField; var Buffer: TValueBuffer): Boolean;
+var
+  Ptr: Pointer;
+begin
+  if Length(Buffer) > 0 then
+    Ptr := @Buffer[0]
+  else
+    Ptr := nil;
+  Result := GetFieldData(Field, Ptr);
+end;
 function TAstaIOCustomDataset.GetOldFieldData(Field: TField; Buffer: Pointer): Boolean;
 begin
   Result := False;
@@ -2073,8 +2097,8 @@ procedure TAstaIOCustomDataset.SetFieldData(Field: TField; Buffer: Pointer);
 var
   LocalValidate:TFieldNotifyEvent;
   FieldAddrInbuffer :Pointer;
-  DestinationBuffer :PChar;
-  Pc :PChar;
+  DestinationBuffer :PAnsiChar;
+  Pc :PAnsiChar;
   IsNull: Boolean;
 begin
   if (buffer = nil) and (Field = nil) then
@@ -2100,10 +2124,10 @@ begin
 
   if Field.FieldKind in [fkCalculated, fkLookup] then
   begin
-    DestinationBuffer := PChar(PByte(DestinationBuffer) + FStartCalculated + Field.Offset);
+    DestinationBuffer := PAnsiChar(PByte(DestinationBuffer) + FStartCalculated + Field.Offset);
     PBoolean(DestinationBuffer)^ := (Buffer <> nil);
     if PBoolean(DestinationBuffer)^ then begin
-      Pc := PChar(PByte(DestinationBuffer) + 1);
+      Pc := PAnsiChar(PByte(DestinationBuffer) + 1);
       Move(Buffer^, Pc^, Field.DataSize);
     end;
     if not FDirectWrite and not (State in [dsCalcFields, dsFilter, dsNewValue]) then
@@ -2129,19 +2153,29 @@ begin
     IsNull := True
   else begin
     IsNull := False;
-      // Character fields have buffer assigned, but length = 0
-    //if ((Field.DataType in [ftString, ftWideString, ftFixedChar]) and (StrLen(Buffer) = 0)) then       //xx
     if (Field.DataType in [ftString, ftFixedChar]) and
-       ({$IFDEF UNICODE}System.AnsiStrings.{$ENDIF}StrLen(PAnsiChar(Buffer)) = 0) then
-      isNull := True
-    else if (Field.DataType = ftWideString) and (WideStrLen(PWideChar(Buffer), Field.Size) = 0) then
-      isNull := True
+       (AnsiStrings.StrLen(PAnsiChar(Buffer)) = 0) then
+      IsNull := True
+    else if (Field.DataType = ftWideString) and
+            (WideStrLen(PWideChar(Buffer), Field.Size) = 0) then
+      IsNull := True
   end;
   if field <> nil then
     SetChangedFlag(Field, not IsNull, DestinationBuffer);
 
   if not FDirectWrite and not (State in [dsCalcFields, dsFilter, dsNewValue]) then
     DataEvent(deFieldChange, Longint(Field));
+end;
+
+procedure TAstaIOCustomDataset.SetFieldData(Field: TField; Buffer: TValueBuffer);
+var
+  Ptr: Pointer;
+begin
+  if Length(Buffer) > 0 then
+    Ptr := @Buffer[0]
+  else
+    Ptr := nil;
+  SetFieldData(Field, Ptr);
 end;
 
 procedure TAstaIOCustomDataset.SetFieldDataNoDataEvent(Field: TField; Buffer: Pointer);
@@ -2153,6 +2187,22 @@ begin
   FieldAddrInBuffer := OffsetPointer(DestinationBuffer, FFldOffs^[Field.FieldNo - 1]);
   system.move(buffer^, fieldAddrInBuffer^, FieldSizeFromField(Field));
   SetChangedFlag(Field, True, DestinationBuffer);
+end;
+
+function WideStrLen(S: PWideChar; MaxLen: Integer): Integer;
+var
+  Count: Integer;
+begin
+  Result := 0;
+  if S = nil then
+    Exit;
+  Count := 0;
+  while (Count < MaxLen) and (S^ <> #0) do
+  begin
+    Inc(Result);
+    Inc(Count);
+    Inc(S);
+  end;
 end;
 
 procedure TAstaIOCustomDataset.DataConvert(Field: TField; Source,
@@ -2282,7 +2332,7 @@ begin
      not (Filtered or FInFindRecord) then
     Exit;
   SaveState := SetTempState(dsFilter);
-  FFilterBuffer := PChar(Buffer);
+  FFilterBuffer := PAnsiChar(Buffer);
   try
     if CheckMasterFilter then
       MasterChildFilter(Self, Result);
@@ -2343,26 +2393,26 @@ begin
   fillchar(buffer[FStartCalculated], calcfieldssize, #0);
 end;
 
-function TAstaIOCustomDataset.GetActiveRecordBuffer: PChar;
+function TAstaIOCustomDataset.GetActiveRecordBuffer: PAnsiChar;
 begin
   if FDirectRead or FDirectWrite then
-    Result := PChar(TempBuffer)
+    Result := PAnsiChar(TempBuffer)
   else
     case State of
       dsBrowse, dsNewValue, dsCurValue:
         if IsEmpty then
           Result := nil
         else
-          Result := PChar(ActiveBuffer);
+          Result := PAnsiChar(ActiveBuffer);
       dsCalcFields:
-        Result := PChar(CalcBuffer);
+        Result := PAnsiChar(CalcBuffer);
       dsFilter:
-        Result := PChar(FFilterBuffer);
+        Result := PAnsiChar(FFilterBuffer);
       dsEdit,
       dsInsert:
-        Result := PChar(ActiveBuffer);
+        Result := PAnsiChar(ActiveBuffer);
       dsSetKey:
-        Result := PChar(PByte(FKeyBuffer) + SizeOf(TAstaIOKeyBuffer));
+        Result := PAnsiChar(PByte(FKeyBuffer) + SizeOf(TAstaIOKeyBuffer));
       else
         Result := nil;
     end;
@@ -2398,7 +2448,7 @@ type
 
 { TAstaBlobStream }
 
-function StreamToString(TM: TMemoryStream): string;
+function StreamToString(TM: TMemoryStream): AnsiString;
 var
   p: Pointer;
 begin
@@ -2408,7 +2458,7 @@ begin
   end;
   SetLength(result, TM.Size);
   TM.Position := 0;
-  p := pchar(result);
+  p := PAnsiChar(result);
   TM.ReadBuffer(p^, TM.Size);
 end;
 
@@ -3607,9 +3657,9 @@ var
       end;
     end
     else begin
-      AIsNull := not GetChangedFlag(AField, PChar(AKey.FData));
+      AIsNull := not GetChangedFlag(AField, PAnsiChar(AKey.FData));
       if not AIsNull then begin
-        buff := OffsetPointer(PChar(AKey.FData), FFldOffs^[AField.FieldNo - 1]);
+        buff := OffsetPointer(PAnsiChar(AKey.FData), FFldOffs^[AField.FieldNo - 1]);
         case AField.DataType of
         ftSmallInt: Move(buff^, AValue, SizeOf(SmallInt));
         ftWord:     Move(buff^, AValue, SizeOf(Word));
@@ -3648,14 +3698,14 @@ var
       end;
     end
     else begin
-      AIsNull := not GetChangedFlag(AField, PChar(AKey.FData));
+      AIsNull := not GetChangedFlag(AField, PAnsiChar(AKey.FData));
       if not AIsNull then begin
-        buff := OffsetPointer(PChar(AKey.FData), FFldOffs^[AField.FieldNo - 1]);
+        buff := OffsetPointer(PAnsiChar(AKey.FData), FFldOffs^[AField.FieldNo - 1]);
         sz := FieldSizeFromField(AField);
         sz2 := System.SysUtils.StrLen(PWideChar(buff));
         if sz2 < sz then
           sz := sz2;
-        SetString(AValue, PChar(buff), sz);
+        SetString(AValue, PAnsiChar(buff), sz);
       end;
     end;
   end;
@@ -3676,9 +3726,9 @@ var
       end;
     end
     else begin
-      AIsNull := not GetChangedFlag(AField, PChar(AKey.FData));
+      AIsNull := not GetChangedFlag(AField, PAnsiChar(AKey.FData));
       if not AIsNull then begin
-        buff := OffsetPointer(PChar(AKey.FData), FFldOffs^[AField.FieldNo - 1]);
+        buff := OffsetPointer(PAnsiChar(AKey.FData), FFldOffs^[AField.FieldNo - 1]);
         WideStrLSet(AValue, PWideChar(buff), TWideStringField(AField).Size);
       end;
     end;
@@ -3702,8 +3752,8 @@ var
         begin
           a1 := s1;
           a2 := s2;
-          Result := CompareStringA(LOCALE_USER_DEFAULT, flag, PChar(a1), Length(a1),
-            PChar(a2), Length(a2)) - 2;
+          Result := CompareStringA(LOCALE_USER_DEFAULT, flag, PAnsiChar(a1), Length(a1),
+            PAnsiChar(a2), Length(a2)) - 2;
         end;
     else
       Result := -1;
@@ -3975,9 +4025,9 @@ procedure TAstaIOCustomDataSet.EndDirectWrite;
 begin
   FDirectWrite := False;
   if FDirectWriteRec.IsFake then
-    FDirectWriteRec.GetFromBufferExt(PChar(TempBuffer), FRecBufSize)
+    FDirectWriteRec.GetFromBufferExt(PWideChar(TempBuffer), FRecBufSize)
   else
-    FDirectWriteRec.GetFromBuffer(PChar(TempBuffer));
+    FDirectWriteRec.GetFromBuffer(PWideChar(TempBuffer));
 end;
 
 procedure TAstaIOCustomDataSet.DoIndexChanging(AIndex: TAstaIOIndex; AReason: TAstaIOIndexReason);
@@ -4198,7 +4248,7 @@ begin
   keyBuff := GetKeyBuffer(kiLookup);
   tmpItem := TAstaDBListItem.CreateForLocate(FAstaList, 0);
   try
-    tmpItem.GetFromBufferExt(PChar(keyBuff) + SizeOf(TAstaIOKeyBuffer), FRecBufSize);
+    tmpItem.GetFromBufferExt(PWideChar(keyBuff) + SizeOf(TAstaIOKeyBuffer), FRecBufSize);
     if FKeyBuffer^.FieldCount <= 0 then
       fldCnt := FIndexes.SelectedIndex.FieldCount
     else
@@ -4285,7 +4335,7 @@ begin
     keyBuff := GetKeyBuffer(kiRangeStart);
     if keyBuff^.Modified then begin
       FRangeFrom := TAstaDBListItem.CreateForLocate(FAstaList, 0);
-      FRangeFrom.GetFromBufferExt(PChar(keyBuff) + SizeOf(TAstaIOKeyBuffer), FRecBufSize);
+      FRangeFrom.GetFromBufferExt(PWideChar(keyBuff) + SizeOf(TAstaIOKeyBuffer), FRecBufSize);
       FRangeFromExclusive := keyBuff^.Exclusive;
       FRangeFromFieldCount := keyBuff^.FieldCount;
       if FRangeFromFieldCount = 0 then
@@ -4298,7 +4348,7 @@ begin
     keyBuff := FKeyBuffers[kiRangeEnd];
     if keyBuff^.Modified then begin
       FRangeTo := TAstaDBListItem.CreateForLocate(FAstaList, 0);
-      FRangeTo.GetFromBufferExt(PChar(keyBuff) + SizeOf(TAstaIOKeyBuffer), FRecBufSize);
+      FRangeTo.GetFromBufferExt(PWideChar(keyBuff) + SizeOf(TAstaIOKeyBuffer), FRecBufSize);
       FRangeToExclusive := keyBuff^.Exclusive;
       FRangeToFieldCount := keyBuff^.FieldCount;
       if FRangeToFieldCount = 0 then

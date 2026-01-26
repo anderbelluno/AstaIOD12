@@ -416,8 +416,8 @@ begin
       if TheDataSets[i].Active then
         TheDataSets[i].Close;
       TAstaCustomClientSQLDataSet(TheDataSets[i]).InternalSQLSetup;
-      p.FastAdd(IntTostr(DataSetid(TheDataSets[i])),
-        TAstaCustomClientSQLDataSet(TheDataSets[i]).GetExpresswayMessage);
+      with p.Add(IntTostr(DataSetid(TheDataSets[i]))) do
+        AsAnsiString := TAstaCustomClientSQLDataSet(TheDataSets[i]).GetExpresswayMessage;
     end;
     Reader := SendStringGetReader(MessageToString(self,
       ATDBExpressWayDataSetSelect, [P.AsTokenizedString(False)]));

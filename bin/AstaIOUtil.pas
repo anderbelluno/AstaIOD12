@@ -40,16 +40,16 @@ uses Classes, SysUtils, IniFiles
      ,DB;
 
 const
-  AstaMT    = CHR(1); {Message Terminator}
-  AstaFS    = CHR(2); {Field Separator}
-  NullField = CHR(3);
-  AstaLT    = CHR(4); {Line Terminator}
-  AstaDT    = CHR(5); {Double sign}
-  AstaMemoT = CHR(6); {memo terminator}
-  AstaBCDT  = CHR(8); {bcd} // For some unknown reason, if this is (7), it breaks one record into two
-  AstaCT    = chr(9); {currency}
-  AstaTST   = CHR(10);{timestamp}
-  AstaWST   = CHR(11);{wide string}
+  AstaMT    = AnsiChar(1); {Message Terminator}
+  AstaFS    = AnsiChar(2); {Field Separator}
+  NullField = AnsiChar(3);
+  AstaLT    = AnsiChar(4); {Line Terminator}
+  AstaDT    = AnsiChar(5); {Double sign}
+  AstaMemoT = AnsiChar(6); {memo terminator}
+  AstaBCDT  = AnsiChar(8); {bcd} // For some unknown reason, if this is (7), it breaks one record into two
+  AstaCT    = AnsiChar(9); {currency}
+  AstaTST   = AnsiChar(10);{timestamp}
+  AstaWST   = AnsiChar(11);{wide string}
   SimpleKey = 4;
   TokenPad = 1000;
   TokenLength = 4;
@@ -182,11 +182,14 @@ function CheckClass(C: TObject; AClass: TClass): Boolean;
 function ByteStringToInteger(S: AnsiString): Integer;
 function IntegerToByteString(I: Integer): AnsiString;
 function ByteStringSpotToInteger(S: AnsiString; Spot: Integer): Integer;
+function EncodedBase64(S:AnsiString):AnsiString; // Added to interface if not present, checking...
+function Base64EncodePassword(userid,Password:AnsiString):AnsiString;
 
 procedure TomCat(const S: AnsiString; var D: AnsiString; var InUse: Integer);
 function AstaHttpPackup(PostData,ProxyAddress,AstaServerAddress,AstaServerPort,UserId,PassWord:AnsiString):AnsiString;
 Function ServerHttpHeader(SendSize:Integer;Data:AnsiString):AnsiString;
 Function AstaIsapiPackup(Data,IsapiPath:AnsiString):AnsiString;
+Function AstaHttpHeader(SendSize:Integer;ProxyAddress,ServerAddress,ServerPort,UserId,Password:AnsiString):AnsiString;
 
 procedure ExtractItemsFromString(TheString :AnsiString; TheChar :AnsiChar; var TheList :TStrings);
 function StringsToString(TheList :TStrings) :AnsiString;
@@ -1360,7 +1363,7 @@ begin
  b.free;
 end;
 
-function Base64EncodePassword(userid,Password:String):String;
+function Base64EncodePassword(userid,Password:AnsiString):AnsiString;
 {const www.w3.org/Protocols/http/1.0.specs/spec.html#A#A
     Enter  'Aladdin:open sesame';
     Get    'QWxhZGRpbjpvcGVuIHNlc2FtZQ==';}
@@ -1368,7 +1371,7 @@ begin
 result:=EncodedBase64(UserId+':'+PassWord);
 end;
 
-Function AstaHttpHeader(SendSize:Integer;ProxyAddress,ServerAddress,ServerPort,UserId,Password:String):String;
+Function AstaHttpHeader(SendSize:Integer;ProxyAddress,ServerAddress,ServerPort,UserId,Password:AnsiString):AnsiString;
 begin
 (*    'Authorization: Basic ' + Base64EncodePassword(Username,Password);
        'Proxy-Authorization: Basic ' Base64EncodePassWord(AProxyname,AProxyPassWord)); *)
@@ -1386,7 +1389,7 @@ begin
       if (Userid<>'') or (Password<>'') then
       result := Result+  'Proxy-Authorization: Basic '+Base64EncodePassword(UserId,Password)+#13#10;
       result := Result + 'Connection: Keep-Alive'+#13#10;
-      Result := Result + 'Content-Length: '+inttostr(SendSize) + #13#10 + #13#10;
+      Result := Result + 'Content-Length: '+AnsiString(inttostr(SendSize)) + #13#10 + #13#10;
 end;
 
 Function ServerHttpHeader(SendSize:Integer;Data:AnsiString):AnsiString;
@@ -1553,7 +1556,7 @@ end;
 
 function OffsetPointer(P: Pointer; Offset: Longint): Pointer;
 begin
-  Result := Pointer(Longint(P) + Offset);
+  Result := Pointer(NativeInt(P) + Offset);
 end;
 function LoByte(w : Word) : byte;
 begin

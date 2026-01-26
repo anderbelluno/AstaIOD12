@@ -213,13 +213,14 @@ begin
       ftfmtmemo,
       ftTypedBinary,
       ftgraphic:    Result := AstaMemoSize;
-    ftwidestring:   Result := StringSize + Sizeof(Word);
+    ftwidestring,
+      ftFixedWideChar: Result := StringSize * 2;
     ftString,
-      ftvarbytes,
-      ftbytes,
-      ftfixedchar,
-      ftguid:       Result := StringSize;
-    ftLargeInt:   result := sizeof(Int64);
+      ftVarBytes,
+      ftBytes,
+      ftFixedChar,
+      ftGUID:       Result := StringSize;
+    ftLargeInt:   Result := Sizeof(Int64);
     ftSmallint:   result := Sizeof(SmallInt);
     fttime,
       ftInteger,

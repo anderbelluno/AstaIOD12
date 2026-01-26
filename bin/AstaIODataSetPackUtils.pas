@@ -112,7 +112,7 @@ begin
         else if S[SPtr] <> AstaLT then
           S1 := S1 + S[Sptr]
         else begin
-          if S1 = 'NULL' then
+          if S1 = AnsiString('NULL') then
             break;
           DataSetRawDataToList(D, S1, MemoList);
           inc(result);
@@ -144,6 +144,31 @@ var
   lIsNull: Boolean;
   sVal: AnsiString;
   PStr: PAnsiString;
+  PCurrent: PAnsiChar;
+  PStart: PAnsiChar;
+  PEnd: PAnsiChar;
+
+  function GetNextToken: AnsiString;
+  var
+    PTokenEnd: PAnsiChar;
+  begin
+    if PCurrent >= PEnd then
+    begin
+      Result := '';
+      Exit;
+    end;
+    
+    PTokenEnd := PCurrent;
+    while (PTokenEnd < PEnd) and (PTokenEnd^ <> AstaFS) do
+      Inc(PTokenEnd);
+      
+    SetString(Result, PCurrent, PTokenEnd - PCurrent);
+    
+    if PTokenEnd < PEnd then
+      PCurrent := PTokenEnd + 1
+    else
+      PCurrent := PEnd;
+  end;
 
   function ConvertDateTime(DataType: TFieldtype; Value: string): TDateTime;
   var
@@ -218,9 +243,13 @@ begin
   with D do begin
     newRow := FastaList.AppendRow(FastaList.Count + 1);
     Indexes.RecordInserting(newRow);
+    
+    PCurrent := PAnsiChar(S);
+    PEnd := PCurrent + Length(S);
+    
     for i := 0 to FAstaList.FFieldList.Count - 1 do begin
       fld := FAstaList.FFieldList.items[AdjustedField];
-      sVal := TokenCountAnsi(S, i, AstaFS);
+      sVal := GetNextToken;
       lIsNull := (sVal = NullField);
       if lIsNull then
         sVal := '';
@@ -246,7 +275,7 @@ begin
         ftword, ftsmallint:
           newRow.PutWord(AdjustedField, StringToInteger(String(sVal)), lIsNull);
         ftboolean:
-          newRow.PutBoolean(AdjustedField, sVal = '1', lIsNull);
+          newRow.PutBoolean(AdjustedField, sVal = AnsiString('1'), lIsNull);
         ftWideString:
           newRow.PutWideString(AdjustedField, AstaStringWideStr(String(sVal)), lIsNull); // ???WS
         ftfixedchar, ftstring
@@ -348,17 +377,22 @@ var
     FillChar(FSPos, SizeOf(FSPos), CHR(0));
     FSCount := 0;
     for i := 1 to Length(S) do
-      if S[i] = AstaFS then
+      if (S[i] = AstaFS) or (S[i] = ',') then
       begin
         INC(FSCount);
         FSPos[FSCount] := i;
       end;
+    if FSCount < maxcommas then
+       FSPos[FSCount+1] := Length(S) + 1;
     LastFS := FSCount;
   end;
 
   function GetField(FieldPos: Integer; S: AnsiString): string;
   begin
-    Result := String(Copy(S, FSPos[FieldPos - 1] + 1, FSPos[FieldPos] - FSPos[FieldPos - 1] - 1));
+    if FieldPos > LastFS + 1 then
+      Result := ''
+    else
+      Result := String(Copy(S, FSPos[FieldPos - 1] + 1, FSPos[FieldPos] - FSPos[FieldPos - 1] - 1));
   end;
 
 begin
@@ -371,8 +405,10 @@ begin
       FieldType:=ord(ftDateTime);
     {$endif}
     {$ifndef WideStrChange}
+    {$IFNDEF UNICODE}
     if (FieldType = 23)  {ftfixedchar} or (FieldType = 24) {ftwidestring} then
       Fieldtype := 1;
+    {$ENDIF}
     {$else}
     {$ifndef Delphi6AndUp}//delphi 5 supportdd
     if (FieldType = 23) {ftfixedchar} or (FieldType = 24) {ftwidestring} then

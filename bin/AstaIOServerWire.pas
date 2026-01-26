@@ -1552,8 +1552,8 @@ begin
   //this all needs to move to it's own procedure
   PluginDataBlock := nil;
   try
-    TerminateClient := PInteger(PChar(S))^ = -1;
-    if (PInteger(PChar(S))^ < -1) then
+    TerminateClient := PInteger(PAnsiChar(S))^ = -1;
+    if (PInteger(PAnsiChar(S))^ < -1) then
     begin
       if not FindPlugin(S, PluginDataBlock, TerminateClient, U) then
       begin

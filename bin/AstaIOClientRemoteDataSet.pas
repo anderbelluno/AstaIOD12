@@ -170,7 +170,7 @@ type
     procedure InternalFetchData;
   public
     property AutoFetchPackets:Boolean read FAutoFetchPackets write FAutoFetchPackets default False;
-    Function GetExpresswayMessage:String;
+    Function GetExpresswayMessage:AnsiString;
     procedure CloseQueryOnServer;
     Function GetNextPacket:Integer;
     function Connected: Boolean; override;
@@ -768,7 +768,7 @@ var
 begin
   Reader:=TAstaMessageReader.Create;
   try
-   Reader.Setup(pchar(Msg));
+   Reader.Setup(PAnsiChar(Msg));
    if Reader.NoData or (Reader.Token = ATDBException) then begin
     result:=Reader.ReadString(0);
     exit;
@@ -905,7 +905,7 @@ begin
   inherited Destroy;
 end;
 
-Function TAstaClientRemoteDataSet.GetExpresswayMessage:String;
+Function TAstaClientRemoteDataSet.GetExpresswayMessage:AnsiString;
 begin
  result:=MessageFetchDataSetFromServer(False);
 end;
@@ -1273,15 +1273,15 @@ begin
       FieldByName('DataBase').AsString := FDatabase;
       //used for ComponentOrigin for Multiple Providers to return exception to the correct DataSet
       FieldByName('DataSetid').AsInteger := DataSetID;
-      FieldbyName('CurrentValuesDataSet').AsString := DataSetToString(D);
-      FieldByName('OldValuesDataSet').AsString := DataSetToString(OldValuesDataSet);
-      FieldByName('ExtraParams').AsString:=TParamsToAstaParamsString(FExtraParams);
+      FieldbyName('CurrentValuesDataSet').AsBytes := BytesOf(RawByteString(DataSetToString(D)));
+      FieldByName('OldValuesDataSet').AsBytes := BytesOf(RawByteString(DataSetToString(OldValuesDataSet)));
+      FieldByName('ExtraParams').AsBytes:=BytesOf(RawByteString(TParamsToAstaParamsString(FExtraParams)));
 
       FieldByName('AutoIncrementField').AsString:=FAutoIncrementField;
       FieldByName('RefetchFields').AsString:=FRefetchFields.Text;
-      FieldByName('BookMarks').AsString:=FBookMarkList.AstokenizedString(False);
-      FieldByName('DeltaTypes').AsString:=FDeltaTypeList.AstokenizedString(False);
-      FieldByName('RefetchPackage').AsString:=FRefetchPackageList.AstokenizedString(False);
+      FieldByName('BookMarks').AsBytes:=BytesOf(RawByteString(FBookMarkList.AstokenizedString(False)));
+      FieldByName('DeltaTypes').AsBytes:=BytesOf(RawByteString(FDeltaTypeList.AstokenizedString(False)));
+      FieldByName('RefetchPackage').AsBytes:=BytesOf(RawByteString(FRefetchPackageList.AstokenizedString(False)));
       Post;
     end;
   finally

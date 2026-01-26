@@ -9,6 +9,15 @@
         <Projects Include="AstaIO_rD12.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\..\Login\AstaIOLoginServer.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\Login\LoginClient.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\MemTable\Project1.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +44,41 @@
     <Target Name="AstaIO_rD12:Make">
         <MSBuild Projects="AstaIO_rD12.dproj" Targets="Make"/>
     </Target>
+    <Target Name="AstaIOLoginServer">
+        <MSBuild Projects="..\..\Login\AstaIOLoginServer.dproj"/>
+    </Target>
+    <Target Name="AstaIOLoginServer:Clean">
+        <MSBuild Projects="..\..\Login\AstaIOLoginServer.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="AstaIOLoginServer:Make">
+        <MSBuild Projects="..\..\Login\AstaIOLoginServer.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="LoginClient">
+        <MSBuild Projects="..\..\Login\LoginClient.dproj"/>
+    </Target>
+    <Target Name="LoginClient:Clean">
+        <MSBuild Projects="..\..\Login\LoginClient.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LoginClient:Make">
+        <MSBuild Projects="..\..\Login\LoginClient.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Project1">
+        <MSBuild Projects="..\..\MemTable\Project1.dproj"/>
+    </Target>
+    <Target Name="Project1:Clean">
+        <MSBuild Projects="..\..\MemTable\Project1.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Project1:Make">
+        <MSBuild Projects="..\..\MemTable\Project1.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="AstaIO_dD12;AstaIO_rD12"/>
+        <CallTarget Targets="AstaIO_dD12;AstaIO_rD12;AstaIOLoginServer;LoginClient;Project1"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="AstaIO_dD12:Clean;AstaIO_rD12:Clean"/>
+        <CallTarget Targets="AstaIO_dD12:Clean;AstaIO_rD12:Clean;AstaIOLoginServer:Clean;LoginClient:Clean;Project1:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="AstaIO_dD12:Make;AstaIO_rD12:Make"/>
+        <CallTarget Targets="AstaIO_dD12:Make;AstaIO_rD12:Make;AstaIOLoginServer:Make;LoginClient:Make;Project1:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

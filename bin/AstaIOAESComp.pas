@@ -29,8 +29,8 @@ Type
     public
     Constructor Create;virtual;
     Destructor Destroy;override;
-    function  AESEncrypt(Data: String): String;
-    function  AESDecrypt(Data: String): String;
+    function  AESEncrypt(Data: AnsiString): AnsiString;
+    function  AESDecrypt(Data: AnsiString): AnsiString;
     procedure SetAESKey(AKey : Pointer; KeyType : aes_key);
  end;
 
@@ -49,7 +49,7 @@ begin
  inherited;
 end;
 
-function TAstaAESComponent.AESEncrypt(Data : string): string;
+function TAstaAESComponent.AESEncrypt(Data : AnsiString): AnsiString;
 var l,
     m,
     rl : integer;
@@ -74,7 +74,7 @@ begin
       SetLength(Data, rl);
       if rl > l then  FillChar(Data[l+1], rl - l, 0);
 
-      if not AESEncryptBuffer(@H, PChar(Data), @Result[5], rl, rl) then
+      if not AESEncryptBuffer(@H, PAnsiChar(Data), @Result[5], rl, rl) then
         raise Exception.Create('');
       Move(l, Result[1], sizeof(integer)); //set source length
     except
@@ -135,7 +135,7 @@ begin
     end;
   end;
 end;
-function TAstaAESComponent.AESDecrypt(Data : string): string;
+function TAstaAESComponent.AESDecrypt(Data : AnsiString): AnsiString;
 var l, rl : integer;
     H  : TAESHandle;
     needRl: Integer;
@@ -154,7 +154,7 @@ begin
         FillChar(result[1], l-4, 0);
         if AESSetKey(@H, FAESOutKey, AES_BLOCK_SIZE, kmDecode) then
         begin
-          if not AESDecryptBuffer(@H, @Data[5], PChar(Result), l - 4, l - 4)
+          if not AESDecryptBuffer(@H, @Data[5], PAnsiChar(Result), l - 4, l - 4)
             then result := ''
             else if l-4>rl
               then Delete(Result, rl+1, l-4-rl);

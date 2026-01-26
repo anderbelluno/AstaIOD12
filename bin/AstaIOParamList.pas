@@ -1639,7 +1639,14 @@ begin
         end
         else
           NewData:=FData;
-        S := Format(sFmt, [FName, ord(FDataType), ord(FParamType), ord(FNull), Length(NewData), NewData]);
+        
+        S := AnsiString(FName) + AnsiChar(TokenForParams) +
+             AnsiString(IntToStr(ord(FDataType))) + AnsiChar(TokenForParams) +
+             AnsiString(IntToStr(ord(FParamType))) + AnsiChar(TokenForParams) +
+             AnsiString(IntToStr(ord(FNull))) + AnsiChar(TokenForParams) +
+             AnsiString(IntToStr(Length(NewData))) + AnsiChar(TokenForParams) +
+             NewData;
+
         S1 := IntegerToByteString(Length(S));
         while Length(S) + Length(S1) + iLen > Length(Result) do begin
           if iGrow < 32768 then
