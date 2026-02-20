@@ -28,19 +28,14 @@ unit AstaIOPropEdt;
 {$I AstaIO.inc}
 
 interface
-uses Classes, {$ifdef Linux}QControls{$else}Controls{$endif}, SysUtils, DB, TypInfo,
+uses Classes, Controls, SysUtils, DB, TypInfo,
      AstaIOClientRemoteDataSet,
      AstaIOExecServerMethod,
      AstaIOCustomDataSet,
      AstaIOIndexes,
      AstaIOClientDataSet,
-     {$IFDEF LINUX}
-     AstaIOKylixFieldLinks,
-     AstaIOKylixFieldsSelect,
-     {$ELSE}
      AstaIOFieldLinks,
      AstaIOFieldsSelect,
-     {$ENDIF}
      AstaIOMetadataTablesView,
      AstaIOMetadataTreeView,
      AstaIOMetadataListView,
@@ -62,17 +57,8 @@ uses Classes, {$ifdef Linux}QControls{$else}Controls{$endif}, SysUtils, DB, TypI
      AstaIOPdaServerPlugin,
      AstaIOPdaUtils, 
      {$endif}
-     {$IFDEF LINUX}
-     QDialogs
-     {$ELSE}
-     Dialogs
-     {$ENDIF}
-     {$IFNDEF Delphi6AndUP}
-     ,DsgnIntf
-     {$ENDIF}
-     {$IFDEF Delphi6AndUP}
-     ,DesignEditors, DesignIntf
-     {$ENDIF}
+     Dialogs,
+     DesignEditors, DesignIntf
      ;
 
 type
@@ -182,15 +168,9 @@ procedure Register;
 
 implementation
 uses AstaIODBConst,
-     {$IFDEF LINUX}
-     AstaIOKylixCompAbout,
-     AstaIOKylixOffLine,
-     AstaIOKylixWorkBenchFrm,
-     {$ELSE}
      AstaIOCompAbout,
      AstaIOOffLine,
      AstaIOWorkBenchFrm,
-     {$ENDIF}
      AstaIOClientIProvider,
      AstaIODataSetProvider,
      AstaIOUtil,
@@ -279,25 +259,17 @@ end;
 function IsNumeric(FieldType :TFieldType): Boolean;
 begin
   Result:=FieldType in [ftSmallInt, ftInteger, ftWord, ftLargeInt, ftFloat,
-    ftCurrency, ftBCD, ftAutoInc {$ifdef Delphi6AndUP}, ftFmtBcd {$endif}];
+    ftCurrency, ftBCD, ftAutoInc, ftFmtBcd];
 end;
 
 // TAboutProperty
 
 procedure TAboutProperty.Edit;
 var acomp        :TComponent;
-    {$IFDEF LINUX}
-    F_CompAbout  :TF_KylixCompAbout;
-    {$ELSE}
     F_CompAbout  :TF_CompAbout;
-    {$ENDIF}
 begin
   acomp:=TComponent(GetComponent(0));
-  {$IFDEF LINUX}
-  F_CompAbout:=TF_KylixCompAbout.Create(nil,acomp.ClassName, AstaIOVersion);
-  {$ELSE}
   F_CompAbout:=TF_CompAbout.Create(nil,acomp.ClassName, AstaIOVersion);
-  {$ENDIF}
   try
     F_CompAbout.ShowModal;
   finally
@@ -325,11 +297,7 @@ end;
 
 procedure TOffLineProperty.Edit;
 var ADataSet      :TAstaCustomClientSQLDataSet;
-    {$IFDEF LINUX}
-    OffLineDialog :TKylixOffLineDialog;
-    {$ELSE}
     OffLineDialog :TOffLineDialog;
-    {$ENDIF}
     UpdateMode :TUpdateMode;
     UpdateKind :TAstaUpdateMethod;
 begin
@@ -340,11 +308,7 @@ begin
 //    (GetComponent(0) is TAstaIONestedDataSet) then
   begin
     ADataSet:=TAstaCustomClientSQLDataSet(GetComponent(0));
-    {$IFDEF LINUX}
-    OffLineDialog:=TKylixOffLineDialog.Create(nil);
-    {$ELSE}
     OffLineDialog:=TOffLineDialog.Create(nil);
-    {$ENDIF}
     try
       for UpdateMode:=Low(TUpdateMode) to High(TUpdateMode) do
         OffLineDialog.cmb_updatemode.Items.Add(GetEnumName(TypeInfo(TUpdateMode), Ord(UpdateMode)));
@@ -569,11 +533,7 @@ begin
   try
     Dialog.Title:='Open file';
 
-    {$IFDEF LINUX}
-    Dialog.Filter:='*.ads|*.txt|*.*|*.cmp|*.xml|*.bin';
-    {$ELSE}
     Dialog.Filter:='Asta DataSet Files (*.ads)|*.ctd|Text files (*.txt)|*.txt|Compressed Files (*.cmp)|*.cmp)|XML Files (*.xml)|*.xml|Binary Files (*.bin)|*.bin|All files (*.*)|*.*';
-    {$ENDIF}
 
     if Uppercase(GetName) = 'FILENAME' then
       Dialog.FilterIndex:=1;
@@ -618,11 +578,7 @@ end;
 
 procedure TFieldsSelectProperty.Edit;
 var ADataSet             :TAstaCustomClientSQLDataSet;
-    {$IFDEF LINUX}
-    FieldsSelectDlg      :TAstaIOKylixFieldsSelectDialog;
-    {$ELSE}
     FieldsSelectDlg      :TAstaIOFieldsSelectDialog;
-    {$ENDIF}
     Fields               :TStrings;
     CapStr               :String;
     i                    :Integer;
@@ -636,11 +592,7 @@ begin
       ADataSet:=TAstaCustomClientSQLDataSet(GetComponent(0));
       if not ADataSet.Active then raise Exception.Create(SUseOffLine);
 
-      {$IFDEF LINUX}
-      FieldsSelectDlg:=TAstaIOKylixFieldsSelectDialog.Create(nil);
-      {$ELSE}
       FieldsSelectDlg:=TAstaIOFieldsSelectDialog.Create(nil);
-      {$ENDIF}
       if UpperCase(GetName) = 'PRIMEFIELDS' then
       begin
         CapStr:='Prime Fields for ';
@@ -729,21 +681,13 @@ end;
 procedure TWorkBenchProperty.Edit;
 var ADataSet      :TAstaCustomClientSQLDataSet;
     WasConnected  :Boolean;
-    {$IFDEF LINUX}
-    WorkBenchForm :TKylixWorkBenchForm;
-    {$ELSE}
     WorkBenchForm :TWorkBenchForm;
-    {$ENDIF}
 begin
   if GetComponent(0) is TAstaCustomClientSQLDataSet then
   begin
     ADataSet:=TAstaCustomClientSQLDataSet(GetComponent(0));
     if ADataSet.AstaClientWire = nil then Raise Exception.Create(SNoAssignedSocket);
-    {$IFDEF LINUX}
-    WorkBenchForm:=TKylixWorkBenchForm.Create(nil);
-    {$ELSE}
     WorkBenchForm:=TWorkBenchForm.Create(nil);
-    {$ENDIF}
     try
       WasConnected:=ADataSet.AstaClientWire.Active;
       if not WasConnected then

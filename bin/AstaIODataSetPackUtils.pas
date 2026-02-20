@@ -19,7 +19,7 @@ uses Classes,AstaIOCustomDataSet;
 
 
 function AstaUnPackDataSet(RowCounter: Integer; S: AnsiString; D: TAstaIODataSet):Integer;
-procedure DataSetRawDataToList(D: TAstaIODataSet; const S: AnsiString; MemoList: TList);
+procedure DataSetRawDataToList(D: TAstaIODataSet; const S: AnsiString; MemoList: TStringList);
 procedure DataSetSetFieldDefs(D: TAstaIODataSet; const S: AnsiString);
 procedure DataSetAddFieldLines(D: TAstaIODataSet; S: AnsiString);
 procedure DataSetSetupFieldOffsetsToAdjustFetchedFields(D: TAstaIODataSet);
@@ -30,9 +30,7 @@ uses AstaIOUtil,db,
   AstaIODBList,
   AstaIOBlobList,
   SysUtils
-  {$ifdef Delphi6AndUp}
   ,FmtBCD,SQLTimSt
-  {$endif}
   ;
 
 Const
@@ -43,10 +41,8 @@ function AstaUnPackDataSet(RowCounter: Integer; S: AnsiString; D: TAstaIODataSet
 var
   SPtr: Integer;
   S1, temp: AnsiString;
-  MemoList: TList;
+  MemoList: TStringList;
   MemoSize: Integer;
-  PStr: PAnsiString;
-  i: Integer;
 
   //FPacketsReturned,
   //FPacketIdentifier: Integer;
@@ -75,8 +71,7 @@ begin
       FDisposeAstaList := True;
     end;
     SPtr := 0;
-    MemoList := TList.Create;
-    try
+    MemoList := TStringList.Create;
     if Length(s) > 0 then
       repeat
         Inc(SPtr);
@@ -88,26 +83,20 @@ begin
           s1 := s1 + AnsiString(CurrToStr(AstaStringCurrency(Copy(s, Sptr, Sizeof(Currency) + 1))));
           inc(Sptr, Sizeof(Currency));
         end
-{$ifdef Delphi6AndUp}
         else if S[Sptr] = AstaBCDT then begin
           s1 := s1 + AnsiString(BcdToStr(AstaStringFmtBcd(Copy(s, Sptr, Sizeof(TBcd) + 1))));
           inc(Sptr, Sizeof(TBcd));
         end
-{$endif}
         else if S[Sptr] = AstaMemoT then begin
           MemoSize := AstaStringInteger(system.copy(s, Sptr, 5));
-          if (MemoSize > 0) and (Sptr + 4 + MemoSize <= Length(S)) then begin
+          if MemoSize > 0 then begin
             s1 := s1 + AnsiString(IntToStr(MemoList.Count)); //What index the string is at
             temp := system.copy(s, Sptr + 1 + sizeof(integer), MemoSize);
-            New(PStr);
-            PStr^ := temp;
-            MemoList.Add(PStr);
+            MemoList.Add(temp);
             inc(Sptr, 4 + MemoSize);
           end
-          else if (MemoSize <= 0) and (MemoSize >= -1) then
-            Inc(Sptr, 4)
           else
-            S1 := S1 + S[Sptr];
+            Inc(Sptr, 4);
         end
         else if S[SPtr] <> AstaLT then
           S1 := S1 + S[Sptr]
@@ -119,31 +108,21 @@ begin
           S1 := '';
         end;
       until SPtr >= Length(S);
-    if MemoList.Count > 0 then
-    begin
-      for i := 0 to MemoList.Count - 1 do
-      begin
-        PStr := PAnsiString(MemoList[i]);
-        Dispose(PStr);
-      end;
-    end;
-    finally
-      MemoList.Free;
-    end; // try
+    MemoList.Free;
   end;
 end;
 
-procedure DataSetRawDataToList(D: TAstaIODataSet; const S: AnsiString; MemoList: TList);
+procedure DataSetRawDataToList(D: TAstaIODataSet; const S: AnsiString; MemoList: TStringList);
 var
   i: Integer;
   m: TMemorySTream;
   BlobId: Integer;
   tray: AnsiString;
+  memoIndex: Integer;
   newRow: TAstaDBListItem;
   fld: TAstaFieldItem;
   lIsNull: Boolean;
   sVal: AnsiString;
-  PStr: PAnsiString;
   PCurrent: PAnsiChar;
   PStart: PAnsiChar;
   PEnd: PAnsiChar;
@@ -207,7 +186,6 @@ var
     result := TimeSTamp.Time;
   end;
 
-  {$ifdef Delphi6AndUp}
   function ConvertFmtBcd(const S: AnsiString): TBcd;
   begin
     if (s = '') or not TryStrToBcd(String(s), Result) then
@@ -224,7 +202,6 @@ var
       Exit;
     Result := DateTimeToSQLTimeStamp(d);
   end;
-  {$endif}
 
   function AdjustedField: Integer;
   //var localspot: Integer;
@@ -258,12 +235,10 @@ begin
           newRow.PutDouble(AdjustedField, ConvertDateTime(fld.FFieldType, String(sVal)), lIsNull);
         ftbcd:
           newRow.PutCurrency(ADjustedField, StringToCurrency(String(sVal)), lIsNull);
-{$ifdef Delphi6AndUp}
         ftfmtBCD:
           newRow.PutFmtBcd(ADjustedField, ConvertFmtBcd(sVal), lIsNull);
         ftTimeStamp:
           newRow.PutTimeStamp(ADjustedField, ConvertTimeStamp(sVal), lIsNull);
-{$endif}
         ftfloat, ftcurrency:
           newRow.PutDouble(ADjustedField, StringtoDouble(String(sVal)), lIsNull);
         ftLargeInt:
@@ -289,8 +264,14 @@ begin
             lIsNull := Tray = '';
             if not lIsNull then
             begin
-               PStr := PAnsiString(MemoList[StringToInteger(String(tray))]);
-               tray := PStr^;
+              memoIndex := StringToInteger(String(tray));
+              if (memoIndex >= 0) and (memoIndex < MemoList.Count) then
+                tray := MemoList[memoIndex]
+              else
+              begin
+                tray := '';
+                lIsNull := True;
+              end;
             end;
             newRow.PutStringBlob(i, Tray, lIsNull);
           end;
@@ -301,8 +282,14 @@ begin
             lIsNull := (Tray = '');
             if not lIsNull then
             begin
-               PStr := PAnsiString(MemoList[StringToInteger(String(tray))]);
-               tray := PStr^;
+              memoIndex := StringToInteger(String(tray));
+              if (memoIndex >= 0) and (memoIndex < MemoList.Count) then
+                tray := MemoList[memoIndex]
+              else
+              begin
+                tray := '';
+                lIsNull := True;
+              end;
             end;
 
             if lIsNull then
@@ -323,7 +310,7 @@ begin
           end;
       end;
     end;
-    MemoList.Clear; // Pointers are owned by AstaUnPackDataSet
+    MemoList.Clear;
     Indexes.RecordInserted(newRow);
     Aggregates.RecordInserted(newRow);
   end;
@@ -400,20 +387,12 @@ begin
     ParseCommas;
     FieldName := GetField(1, S);
     FieldType := StringToInteger(GetField(2, S));
-    {$ifndef Delphi6AndUp}
-    if FieldType=KylixTimeStamp then
-      FieldType:=ord(ftDateTime);
-    {$endif}
     {$ifndef WideStrChange}
     {$IFNDEF UNICODE}
     if (FieldType = 23)  {ftfixedchar} or (FieldType = 24) {ftwidestring} then
       Fieldtype := 1;
     {$ENDIF}
     {$else}
-    {$ifndef Delphi6AndUp}//delphi 5 supportdd
-    if (FieldType = 23) {ftfixedchar} or (FieldType = 24) {ftwidestring} then
-      Fieldtype := 1;
-    {$endif}
     {$endif}
       {map back to string} (* else
      if FieldType=25 then Fieldtype:=3;{ftLargeInt to ftinteger}*)
@@ -440,12 +419,10 @@ begin
     {$endif}
 
     // if FieldSize <= 0 then Fieldsize := 25;
-    {$ifdef Delphi6AndUp}
       case Fieldtype of
        ord(ftdatetime): FieldSize := 0;
        ord(ftBCD):      FieldSize := 0;
       end;
-    {$endif}
     FieldDefs.Add(FieldName, TFieldType(Fieldtype), FieldSize, False);
     {$ifdef AstaBCB}
     FieldDefs[FieldDefs.Count-1].Precision:=FieldPrecision;
@@ -476,7 +453,7 @@ end;
 function IsNumericField(FieldType: Integer): Boolean;
 begin
   Result := TFieldType(FieldType) in [ftSmallint, ftInteger, ftLargeInt, ftWord,
-    ftFloat, ftCurrency, ftBCD, ftAutoInc {$ifdef Delphi6AndUp}, ftFmtBCD {$endif}];
+    ftFloat, ftCurrency, ftBCD, ftAutoInc, ftFmtBCD];
 end;
 
 end.

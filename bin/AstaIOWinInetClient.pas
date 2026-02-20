@@ -27,12 +27,9 @@ interface
 
 uses
   SysUtils, Classes,
-  {$IFDEF LINUX}
-   ain't gonna dance here
-  {$ELSE}
-  Controls, Forms,
+uses
+  SysUtils, Classes, Controls, Forms,
   AstaIOWinInet, Dialogs,//,AstaIOSmartWait,
-  {$ENDIF}
   AstaIOClientMessageTransport, AstaIOMessagePacker;
 
 type

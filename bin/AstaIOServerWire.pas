@@ -521,11 +521,7 @@ begin
   FServerLogFlags := [slfAllEvents];
   FSessionList := nil;
   FLogClientList := TList.Create;
-{$IFDEF Linux}
-  FLogExe := 'AstaIOLogger';
-{$ELSE}
   FLogExe := 'AstaIOLogger.exe';
-{$ENDIF}
   FCriticalSection := TCriticalSection.Create;
 {$IFDEF PoolThreads}
   FThreadPool := TAstaThreadPool.Create;
@@ -1385,7 +1381,7 @@ begin
       if (UserRecord.UserKey <> '') and Assigned(FOnUserEncryption) then
         FOnUserEncryption(Self, UserRecord, TheData, False)
       else
-        TheData := AnsiString(UserRecord.Decrypt(string(TheData))) // Assuming UserRecord.Decrypt takes/returns string
+        TheData := UserRecord.Decrypt(TheData)
     end
   else
   case FEncryption of
@@ -1409,7 +1405,7 @@ begin
       if (UserRecord.UserKey <> '') and Assigned(FOnUserEncryption) then
         FOnUserEncryption(Self, UserRecord, TheData, True)
       else
-        TheData := AnsiString(UserRecord.Encrypt(string(TheData))) // Assuming UserRecord.Encrypt takes/returns string
+        TheData := UserRecord.Encrypt(TheData)
     end
   else
   case FEncryption of
@@ -1473,8 +1469,8 @@ begin
   //this all needs to move to it's own procedure
   PluginDataBlock := nil;
   try
-    TerminateClient := PInteger(PChar(S))^ = -1;
-    if (PInteger(PChar(S))^ < -1) then
+    TerminateClient := PInteger(PAnsiChar(S))^ = -1;
+    if (PInteger(PAnsiChar(S))^ < -1) then
     begin
       if not FindPlugin(S, PluginDataBlock, TerminateClient) then
       begin
@@ -1487,7 +1483,7 @@ begin
       Delete(S, 1, SizeOf(Integer));
       OpenEnvelope(U, S);
     end;
-    Reader.Setup(pchar(s));
+    Reader.Setup(PAnsiChar(S));
 
     OkToProcess := False;
     u := nil;

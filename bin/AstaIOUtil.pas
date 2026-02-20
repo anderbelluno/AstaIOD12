@@ -26,18 +26,9 @@ unit AstaIOUtil;
 
 interface
 
-uses Classes, SysUtils, IniFiles
-     {$IFDEF msWindows}
-     ,Controls, Registry, Windows,  ShellAPI,
-     winSock,Forms
-     {$ELSE}
-     ,Libc
-     {$ENDIF}
-     {$IFDEF Delphi6AndUp}
-     ,FMTBcd
-     ,SqlTimSt
-     {$ENDIF}
-     ,DB;
+uses Classes, SysUtils, IniFiles,
+     Controls, Registry, Windows, ShellAPI, winSock, Forms,
+     FMTBcd, SqlTimSt, DB, DateUtils;
 
 const
   AstaMT    = AnsiChar(1); {Message Terminator}
@@ -63,11 +54,7 @@ const
   AppServerPort = 5000;
 
 // REGISTRY STUFF GOES HERE
-  {$ifdef mswindows}
   AstaRootKey = HKEY_LOCAL_MACHINE;
-  {$else}
-  AstaRootKey = 'AstaIO';
-  {$endif}
   AstaRegKey = 'SOFTWARE\AstaIO';
   SubKey = 'AutoUpdate';
   AutoUpdateKey = 'AutoUpdate';
@@ -145,7 +132,7 @@ procedure UpdateAstaAlias(DB: TDataSet);
 procedure GetBuildInfo(var V1, V2, V3, V4: Word);
 function GetBuildInfoAsString: string;
 procedure ReplaceS(var Source: AnsiString; const Target, Replace: Ansistring); overload;
-procedure ReplaceS(var Source: string; const Target, Replace: string); overload;
+//procedure ReplaceS(var Source: string; const Target, Replace: string); overload;
 procedure OpenShellObject(sObjectPath: PChar);
 function AstaFloatString(D: Double): AnsiString;
 function AstaStringFloat(S: AnsiString): Double;
@@ -159,12 +146,10 @@ function AstaStringInteger(S: AnsiString): Integer;
 function PadRight(S: string; Spaces: Integer): string;
 function AstaCurrencyString(C: Currency): AnsiString;
 function AstaStringCurrency(const S: AnsiString): Currency;
-{$ifdef Delphi6AndUp}
 function AstaFmtBCDString(const BCDValue: TBcd): AnsiString;
 function AstaStringFmtBCD(const S: AnsiString): TBcd;
 function AstaStringTimeStamp(const S: AnsiString): TSQLTimeStamp;
 function AstaTimeStampString(const ATimeStamp: TSQLTimeStamp): AnsiString;
-{$endif}
 
 procedure ReplaceOldClient(NewFileStream: TMemoryStream);
 function FilePathToShortName(const FPath: string): string;
@@ -385,10 +370,10 @@ begin
   end;
 end;
 
-procedure ReplaceS(var Source: string; const Target, Replace: string);
+{procedure ReplaceS(var Source: string; const Target, Replace: string);
 begin
   Source := StringReplace(Source, Target, Replace, [rfReplaceAll]);
-end;
+end;}
 
 function CopyToInt(const S: string; Start, Len: Integer): Integer;
 begin
@@ -474,17 +459,12 @@ end;
 
 function GetThePCsIPAddress: string;
 var
-  {$IFNDEF LINUX}
   WSAData: TWSAData;
-  {$ENDIF}
   HostName, Address: string;
   HostEnt: PHostEnt;
 begin
   { no error checking...}
-//  WSAStartup(2, WSAData); this was a winsock 2 call. Paul's catch 09/08/99
-  {$IFNDEF LINUX}
   WSAStartup($0101, WSAData);
-  {$ENDIF}
   SetLength(HostName, 255);
   gethostname(PAnsiChar(HostName), 255);
   SetLength(HostName, StrLen(PChar(HostName)));
@@ -492,9 +472,7 @@ begin
   with HostEnt^ do
     Address := Format('%d.%d.%d.%d', [Byte(h_addr^[0]), Byte(h_addr^[1]),
       Byte(h_addr^[2]), Byte(h_addr^[3])]);
-  {$IFNDEF LINUX}
   WSACleanup;
-  {$ENDIF}
 
   Result := Address;
 end;
@@ -654,16 +632,12 @@ var
   Buffer: array[0..255] of Char;
   size: LongWord;
 begin
-{$IFDEF LINUX}
-  //
-{$ELSE}
   Size := SizeOf(Buffer);
   SetLength(Result, Size);
   if GetComputerName(Buffer, Size) then
     Result := StrPas(Buffer)
   else
     Result := '';
-{$ENDIF}
 end;
 
 function GetTheUserName: string;
@@ -671,16 +645,12 @@ var
   Buffer: array[0..255] of Char;
   Size: LongWord;
 begin
-{$IFDEF LINUX}
-  //
-{$ELSE}
   Size := SizeOf(Buffer);
   SetLength(Result, Size);
   if GetUserName(Buffer, Size) then
     Result := StrPas(Buffer)
   else
     Result := '';
-{$ENDIF}
 end;
 
 function GetNetworkUserName: string;
@@ -688,16 +658,12 @@ var
   Buffer: array[0..255] of Char;
   Size: LongWord;
 begin
-{$IFDEF LINUX}
-  //
-{$ELSE}
   Size := SizeOf(Buffer);
   SetLength(Result, Size);
   if WNetGetUser(nil, Buffer, Size) = NO_ERROR then
     Result := StrPas(Buffer)
   else
     Result := '';
-{$ENDIF}
 end;
 
 
@@ -786,15 +752,6 @@ begin
   Result := FClientVersion;
 end;
 
-{$IFDEF LINUX}
-
-procedure GetBuildInfo(var V1, V2, V3, V4: Word);
-begin
-
-end;
-
-{$ELSE}
-
 procedure GetBuildInfo(var V1, V2, V3, V4: Word);
    { by Steve Schafer }
 var
@@ -806,7 +763,6 @@ var
 begin
   VerInfoSize := GetFileVersionInfoSize(PChar(ParamStr(0)), Dummy);
   GetMem(VerInfo, VerInfoSize);
-// EE 3/24/98 -- check the result
   V1 := 0;
   V2 := 0;
   V3 := 0;
@@ -824,7 +780,6 @@ begin
   end;
   FreeMem(VerInfo, VerInfoSize);
 end;
-{$ENDIF}
 
 procedure OpenShellObject(sObjectPath: PChar);
 begin
@@ -834,11 +789,7 @@ begin
  // mailto:info@astatech.com
  // http://www.astatech.com
  // readme.doc
-{$IFDEF LINUX}
-  //
-{$ELSE}
   ShellExecute(0, nil, sObjectPath, nil, nil, SW_NORMAL);
-{$ENDIF}
 end;
 
 function AstaStringFloat(S: AnsiString): Double;
@@ -876,7 +827,6 @@ begin
     move(s[1], Result, sizeof(Result));
 end;
 
-{$ifdef Delphi6AndUp}
 function AstaFmtBCDString(const BCDValue: TBcd): AnsiString;
 begin
   setlength(result, sizeof(TBcd) + 1);
@@ -911,7 +861,6 @@ begin
   result[1] := AstaTST;
   move(ATimeStamp, result[2], Sizeof(TSQLTimeStamp));
 end;
-{$endif}
 
 function AstaIntegerString(D: Integer): AnsiString;
 begin
@@ -931,7 +880,7 @@ begin
     SetLength(Result, 1 + n * 2);
     Result[1] := AstaWST;
     if Length(S) > 0 then
-      BinToHex(Pointer(PChar(@S[1])), PWideChar(@Result[2]), n);
+      BinToHex(PChar(@S[1]), PChar(@Result[2]), n);
   end;
 end;
 
@@ -942,7 +891,7 @@ begin
     Exit;
   end;
   SetLength(Result, (Length(AStr) - 1) div (SizeOf(WideChar) * 2));
-  HexToBin(PWideChar(@AStr[2]), Pointer(PChar(@Result[1])), Length(Result) * SizeOf(WideChar));
+  HexToBin(PChar(@AStr[2]), PChar(@Result[1]), Length(Result) * SizeOf(WideChar));
 end;
 function StringToDouble(S: string): Double;
 begin
@@ -997,11 +946,7 @@ var
   s: string;
 begin
   if DB.FindField('Alias') = nil then exit;
-{$IFDEF LINUX}
-  //
-{$ELSE}
   r := TIniFile.Create(ExtractFilePath(Paramstr(0)) + '\AstaAlias.ini');
-{$ENDIF}
   l := TStringList.Create;
   Values := TStringList.Create;
   r.ReadSection('Alias', l);
@@ -1053,11 +998,7 @@ var
   tray: array[0..255] of char;
 begin
   fillchar(tray, sizeof(tray), 0);
-{$IFDEF LINUX}
-  //
-{$ELSE}
   getshortpathname(pchar(FPath), tray, sizeof(tray));
-{$ENDIF}
   result := StrPas(tray);
 end;
 
@@ -1126,17 +1067,8 @@ begin
   Write(FOut, 'Del Rename.Bat');
   CloseFile(FOut);
 // SW_Hide -- keeps the annoying shell from popping up in the user's face
-{$IFDEF LINUX}
-  //
-{$ELSE}
   ShellExecute(0, nil, PChar('Rename.bat'), nil, nil, SW_HIDE);
-{$ENDIF}
-  {$ifdef mswindows}
   //Application.Terminate;
-  {$endif}
-  {$ifdef linux}
-  halt;
-  {$endif}
 end;
 
 function Min(X, Y: Integer): Integer;
@@ -1467,22 +1399,12 @@ const
   T6: array[0..12] of char = 'Delphi 6'#0;
   T7: array[0..12] of char = 'Delphi 7'#0;
 begin
- result:=True;
- {$IFDEF LINUX}
- exit;
- {$ELSE}
-(*   {$IFNDEF HELLO}
-    result:=FindWindow(nil,'C++Builder 5')<>0;
-   {$IFDEF VER125}
-    result:=FindWindow(nil,'C++Builder 4')<>0;
-    {$endif}
-  {$else} *)
+  result:=True;
   Result := ((FindWindow(A1, T1) <> 0) or (FindWindow(A1, T2) <> 0) or (FindWindow(A1,T3)<>0)
    or (FindWindow(A1, T4)<>0) or (FindWindow(A1, T5)<>0) or (FindWindow(A1,T6)<>0) or (FindWindow(a1,T7)<>0))
 
    and (FindWindow(A2, nil) <> 0)      and
    { (FindWindow(A3, nil) <> 0) and} (FindWindow(A4, nil) <> 0);
-//  {$endif}
   if not Result then { Alert the developer/users of a problem. }
     Application.MessageBox('This application makes use of unlicensed thin client technology from' + #13 +
       'The Asta Technology Group. (c) copyright 1997-2002 all rights reserved.' + #13 +
@@ -1490,17 +1412,12 @@ begin
       'contact info@astatech.com.' + #13 +
       'Or Visit our Home Page at http://www.astatech.com or www.astawireless.com', 'Asta Thin Client-www.astatech.com- UnLicensed Technology',
       mb_OK + mb_IconStop);
- {$ENDIF}
 end;
 {$endif}
 
 function NowAdjustedBySeconds(Seconds:Integer):TdateTime;
 begin
- {$ifdef Delphi6AndUpx}
  result:=IncSecond(now,seconds);
- {$else}
-  Result := ((now * SecsPerDay) + Seconds) / SecsPerDay;
- {$endif}
 end;
 
 procedure WideStrLCopy(const ASrc: WideString; ADest: PWideChar; AMaxChars: Integer);
@@ -1558,6 +1475,7 @@ function OffsetPointer(P: Pointer; Offset: Longint): Pointer;
 begin
   Result := Pointer(NativeInt(P) + Offset);
 end;
+
 function LoByte(w : Word) : byte;
 begin
   result := byte(w and $00FF);
@@ -1567,16 +1485,7 @@ function HiByte(w : Word) : byte;
 begin
   result := byte(w shr 8);
 end;
+
 initialization
-{$IFDEF DEMO}
-{$IFNDEF LINUX}
- if not DelphiIsRunning then begin
-    if Paramcheck('ThinClient') > 0 then exit;
-    application.Terminate;
-  end;
-{$ENDIF}
-{$ENDIF}
-
-
   FHTTPStrLen := Length(HTTPMaker);
 end.

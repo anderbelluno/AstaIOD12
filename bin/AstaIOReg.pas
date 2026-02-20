@@ -28,18 +28,10 @@ uses
   Classes,
   DB,
   SysUtils,
-  {$IFDEF LINUX}
-  QDialogs,
-  AstaIOLinuxBase,
- {$ELSE}
   Dialogs,
   AstaIOCompEdt,
- {$IFNDEF Delphi6AndUp}
-  DsgnIntf,
-  {$ENDIF}
   AstaIOWinBase,AstaIOServiceUtils,
   AstaIOServerDatasetUtils,
- {$ENDIF}
   AstaIOPropEdt,
   AstaIOClientRemoteDataSet,
   AstaIOClientWire,
@@ -80,20 +72,13 @@ uses
   AstaIOPdaUtils,
   AstaIOPdaBase,
   {$endif}
-  {$ifdef Windows}
   AstaIOHttpDownload,
-  {$endif}
   AstaIOUIUtils
-  {$ifdef mswindows}
-  //just temporary linux guys!
   ,AstaIODatagramServer,
   AstaIODatagramClient
-  {$endif}
   //,AstaIOClientWireConnector
- {$ifdef mswindows}
   ,AstaIOStringServerWire,
    AstaIOStringClientWire
- {$endif}
   ;
 
 procedure Register;
@@ -111,17 +96,14 @@ begin
      TAstaIOSQLGenerator,
      TAstaIOAutoUpgrade]);
 
-   RegisterComponents('AstaIO Server', [TAstaIOPdaServerWirePlugin{$ifdef mswindows},TAstaIODatagramServerWire{$endif}]);
+   RegisterComponents('AstaIO Server', [TAstaIOPdaServerWirePlugin,TAstaIODatagramServerWire]);
    RegisterComponents('AstaIO Server', [TAstaIOSocketServerWire,TAstaIOIProvider,
    TAstaIOProvider,TAstaIODatabasePlugin,TAstaIOMetaData,
    TAstaIOServerMethodResultSet,
    TAstaIOServerMethodExec]);
-  {$ifdef mswindows}
   RegisterComponents('AstaIO Client', [TAstaIOStringClientWire]);
   RegisterComponents('AstaIO Server', [TAstaIOStringServerWire]);
-  {$endif}
-  RegisterComponents('AstaIO Client', [TAstaIOClientLeanWire,TAstaIOWebClientWire,TAstaIONativeClientWire{$ifdef mswindows},TAstaIODatagramClientWire{$endif}
-  {,TAstaIOClientWireConnector}]);
+  RegisterComponents('AstaIO Client', [TAstaIOClientLeanWire,TAstaIOWebClientWire,TAstaIONativeClientWire,TAstaIODatagramClientWire]);
 
   RegisterComponents('AstaIO Client',
     [TAstaIODataSet,
@@ -150,9 +132,7 @@ begin
   {$ENDIF}
 
   AstaIOPropEdt.Register;
-  {$IFNDEF LINUX}
   AstaIOCompEdt.Register;
-  {$ENDIF}
 end;
 
 end.

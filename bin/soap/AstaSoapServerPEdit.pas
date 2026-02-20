@@ -1,20 +1,9 @@
 unit AstaSoapServerPEdit;
-{$ifdef Ver150}
- {$define Delphi6AndUp}
-{$endif}
-{$ifdef Ver140}
- {$define Delphi6AndUp}
-{$endif}
-
 interface
 
 uses Classes, Forms,AstaSoapMethod, AstaSoapElmEditor,
   AstaSoapTypeEditor,
-  {$ifdef Delphi6AndUp}
-  DesignEditors, DesignIntf
-{$else}
-  DsgnIntf
-{$endif}  ;
+  DesignEditors, DesignIntf;
 
 type
   TAstaSoapElmEditor = class(TClassProperty)

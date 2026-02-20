@@ -26,12 +26,8 @@ unit AstaIOWireLogin;
 interface
 
 uses SysUtils, Classes,
-{$IFDEF LINUX}
-  QForms, QControls, QStdCtrls,QExtCtrls
-{$ELSE}
   Windows, Graphics, Forms, Controls, StdCtrls,
-  Buttons, ExtCtrls
-{$ENDIF};
+  Buttons, ExtCtrls;
 
 type
   TAstaIOPasswordDialog = class(TForm)

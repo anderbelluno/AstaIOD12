@@ -91,11 +91,23 @@ var
   function MemoAsString(T: tField): AnsiString;
   var
     S: AnsiString;
+    Stream: TMemoryStream;
   begin
     if T.IsNull then
       result := AstaIntegerString(-1)
     else begin
-      S := AnsiString(T.Asstring);
+      if T is TBlobField then
+      begin
+        Stream := TMemoryStream.Create;
+        try
+          TBlobField(T).SaveToStream(Stream);
+          S := StreamToString(Stream);
+        finally
+          Stream.Free;
+        end;
+      end
+      else
+        S := AnsiString(T.AsString);
       Result := AstaIntegerString(Length(S)) + S;
     end;
   end;
@@ -342,44 +354,72 @@ function FieldDefsToString(D: TdataSet; Delphi5Client:Boolean): AnsiString;
 var
   I: Integer;
   S: AnsiString;
+  FieldDef: TFieldDef;
 begin
   result := '';
   try
-    for I := 0 to D.FieldCount - 1 do//changed from FieldDefs
+    if D.FieldCount > 0 then
     begin
-      S := '';
+      for I := 0 to D.FieldCount - 1 do
       begin
+        S := '';
         S := AnsiString(d.fields[i].FieldName) + AstaFS;
 {$ifdef Delphi6AndUp}
-      if (d.fields[i].DataType = ftTimeStamp) and Delphi5Client then
-        S := S + AstaIntegerString(ord(ftDateTime)) + AstaFS
-      else if (d.fields[i].DataType = ftFmtBCD) and Delphi5Client then
-        S := S + AstaIntegerString(ord(ftBCD)) + AstaFS
-      else
+        if (d.fields[i].DataType = ftTimeStamp) and Delphi5Client then
+          S := S + AnsiString(IntToStr(ord(ftDateTime))) + AstaFS
+        else if (d.fields[i].DataType = ftFmtBCD) and Delphi5Client then
+          S := S + AnsiString(IntToStr(ord(ftBCD))) + AstaFS
+        else
 {$endif}
-      {if d.fields[i].DataType = ftOraBlob then
-        S := S + IntTostr(Ord(ftMemo)) + AstaFS
-      else
-        S := S + IntTostr(Ord(d.fields[i].Datatype)) + AstaFS;}
-      S := S + AstaIntegerString(Ord(d.fields[i].Datatype)) + AstaFS; // jn - 09/23/2011 - for OraBlob and OraClob
+        {if d.fields[i].DataType = ftOraBlob then
+          S := S + IntTostr(Ord(ftMemo)) + AstaFS
+        else
+          S := S + IntTostr(Ord(d.fields[i].Datatype)) + AstaFS;}
+        S := S + AnsiString(IntToStr(Ord(d.fields[i].Datatype))) + AstaFS;
 {$ifdef linux}
-      if d.fields[i].DataType in [ftfloat, ftbcd] then
-        S := S + AstaIntegerString(0) + AstaFS;
+        if d.fields[i].DataType in [ftfloat, ftbcd] then
+          S := S + AnsiString(IntToStr(0)) + AstaFS;
 {$endif}
-      S := S + AstaIntegerString(d.fields[i].Size)       + AstaFS;
-     case d.fields[i].Datatype of
-     ftFloat:S := S + AstaIntegerString(TFloatField(d.fields[i]).Precision)  + AstaFS;
-     ftBCD  :S := S + AstaIntegerString(TBCDField(d.fields[i]).Precision)  + AstaFS;
-     {$ifdef Delphi6AndUp}
-     ftFmtBCD  :S := S + AstaIntegerString(TfmtBCDField(d.fields[i]).Precision)  + AstaFS;
-     {$endif}
-     else S := S + AstaIntegerString(0)  + AstaFS;
+        S := S + AnsiString(IntToStr(d.fields[i].Size)) + AstaFS;
+       case d.fields[i].Datatype of
+       ftFloat:S := S + AnsiString(IntToStr(TFloatField(d.fields[i]).Precision))  + AstaFS;
+       ftBCD  :S := S + AnsiString(IntToStr(TBCDField(d.fields[i]).Precision))  + AstaFS;
+       {$ifdef Delphi6AndUp}
+       ftFmtBCD  :S := S + AnsiString(IntToStr(TfmtBCDField(d.fields[i]).Precision))  + AstaFS;
+       {$endif}
+       else S := S + AnsiString(IntToStr(0))  + AstaFS;
+       end;
+        S := S + AnsiString(IntToStr(ord(d.Fields[i].Required))) + AstaFS;
+        S := S + AnsiString(IntToStr(ord(d.Fields[i].ReadOnly))) + AstaFS;
+        result := result + S + AstaLT;
       end;
-      S := S + AstaIntegerString(ord(d.Fields[i].Required)) + AstaFS;
-      S := S + AstaIntegerString(ord(d.Fields[i].ReadOnly)) + AstaFS;
-      result := result + S + AstaLT;
+    end
+    else
+    begin
+      for I := 0 to D.FieldDefs.Count - 1 do
+      begin
+        FieldDef := D.FieldDefs[I];
+        S := '';
+        S := AnsiString(FieldDef.Name) + AstaFS;
+{$ifdef Delphi6AndUp}
+        if (FieldDef.DataType = ftTimeStamp) and Delphi5Client then
+          S := S + AnsiString(IntToStr(ord(ftDateTime))) + AstaFS
+        else if (FieldDef.DataType = ftFmtBCD) and Delphi5Client then
+          S := S + AnsiString(IntToStr(ord(ftBCD))) + AstaFS
+        else
+{$endif}
+        S := S + AnsiString(IntToStr(Ord(FieldDef.DataType))) + AstaFS;
+{$ifdef linux}
+        if FieldDef.DataType in [ftfloat, ftbcd] then
+          S := S + AnsiString(IntToStr(0)) + AstaFS;
+{$endif}
+        S := S + AnsiString(IntToStr(FieldDef.Size)) + AstaFS;
+        S := S + AnsiString(IntToStr(FieldDef.Precision)) + AstaFS;
+        S := S + AnsiString(IntToStr(ord(FieldDef.Required))) + AstaFS;
+        S := S + AnsiString(IntToStr(0)) + AstaFS;
+        result := result + S + AstaLT;
+      end;
     end;
-  end;
   except
     raise EDataBaseError.Create(Exception(ExceptObject).Message);
   end;

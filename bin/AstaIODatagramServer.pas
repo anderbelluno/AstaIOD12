@@ -104,14 +104,14 @@ end;
 procedure TAstaIODatagramServerWire.DoIncomingData(Sender: TObject;
   Connection: TDatagramConnection);
 var
-  S: String;
+  S: AnsiString;
   L: Integer;
 begin
   Connection.ReadBuffer(L, SizeOf(L));
   if L > 0 then
     begin
       SetLength(S, L);
-      Connection.ReadBuffer((PChar(S))^, L);
+      Connection.ReadBuffer(PAnsiChar(S)^, L);
     end
   else
     S := '';
@@ -134,8 +134,8 @@ begin
   if (Length(S) > 0) and IsValid(UserRecord.TheClient) then
     begin
       S := '    ' + S;
-      PInteger(PChar(S))^ := Length(S) - 4;
-      TDatagramConnection(UserRecord.TheClient).WriteBuffer(PChar(S)^, Length(S));
+      PInteger(PAnsiChar(S))^ := Length(S) - 4;
+      TDatagramConnection(UserRecord.TheClient).WriteBuffer(PAnsiChar(S)^, Length(S));
     end;
 end;
 

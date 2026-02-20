@@ -1026,6 +1026,8 @@ begin
         FieldDefs.Clear;
         DisposeAstaList;
         InternalFetchData;
+        if FAstaList = nil then
+             AstaFieldCreate(True);
       end;
     end
     else if RaiseIt then //07/01/01 this is important to support opens in the form create
@@ -1054,7 +1056,7 @@ begin
     else
       FOpenQueryOnServer := R.ReadBoolean(1);
     //doesn't copy the list but just uses the one of the one coming in. check for memory leaks
-    FieldDefs.Clear;
+    FieldDefs.Assign(D.FieldDefs);
     FAstaList := D.FAstaList;
     f := TAstaDBList.create;
     d.FAstaList := f;
@@ -1098,6 +1100,7 @@ begin
     if not ValidReadercheck(R) then exit;
     DataSetSetFieldDefs(TAstaIODataSet(Self), R.ReadString(0));
     AstaUnPackDataSet(0, r.ReadString(1), TAstaIODataSet(Self));
+    Indexes.Rebuild;
     if (csdesigning in ComponentState) or not FAllowPackets then FOpenQueryOnServer:=False else
     FOpenQueryOnServer:=R.ReadBoolean(2);
   finally
@@ -1226,6 +1229,30 @@ begin
   end;
 end;
 
+procedure SetBlobFieldValue(Field: TField; const Value: AnsiString);
+var
+  Stream: TMemoryStream;
+begin
+  if Field = nil then
+    Exit;
+  if Field is TBlobField then
+  begin
+    if Value = '' then
+      Field.Clear
+    else
+    begin
+      Stream := NewStringToStream(Value);
+      try
+        TBlobField(Field).LoadFromStream(Stream);
+      finally
+        Stream.Free;
+      end;
+    end;
+  end
+  else
+    Field.AsString := String(Value);
+end;
+
 begin
   d := DeltaDataSetCurrentValueDataSet;
   OldValuesDataSet.First;
@@ -1273,15 +1300,15 @@ begin
       FieldByName('DataBase').AsString := FDatabase;
       //used for ComponentOrigin for Multiple Providers to return exception to the correct DataSet
       FieldByName('DataSetid').AsInteger := DataSetID;
-      FieldbyName('CurrentValuesDataSet').AsBytes := BytesOf(RawByteString(DataSetToString(D)));
-      FieldByName('OldValuesDataSet').AsBytes := BytesOf(RawByteString(DataSetToString(OldValuesDataSet)));
-      FieldByName('ExtraParams').AsBytes:=BytesOf(RawByteString(TParamsToAstaParamsString(FExtraParams)));
+      SetBlobFieldValue(FieldByName('CurrentValuesDataSet'), DataSetToString(D));
+      SetBlobFieldValue(FieldByName('OldValuesDataSet'), DataSetToString(OldValuesDataSet));
+      FieldByName('ExtraParams').AsString := TParamsToAstaParamsString(FExtraParams);
 
       FieldByName('AutoIncrementField').AsString:=FAutoIncrementField;
       FieldByName('RefetchFields').AsString:=FRefetchFields.Text;
-      FieldByName('BookMarks').AsBytes:=BytesOf(RawByteString(FBookMarkList.AstokenizedString(False)));
-      FieldByName('DeltaTypes').AsBytes:=BytesOf(RawByteString(FDeltaTypeList.AstokenizedString(False)));
-      FieldByName('RefetchPackage').AsBytes:=BytesOf(RawByteString(FRefetchPackageList.AstokenizedString(False)));
+      FieldByName('BookMarks').AsString := FBookMarkList.AstokenizedString(False);
+      FieldByName('DeltaTypes').AsString := FDeltaTypeList.AstokenizedString(False);
+      FieldByName('RefetchPackage').AsString := FRefetchPackageList.AstokenizedString(False);
       Post;
     end;
   finally
@@ -1322,6 +1349,7 @@ begin
     DataSetSetFieldDefs(TAstaIODataSet(Self), R.ReadString(0));
 
     AstaUnPackDataSet(0, r.ReadString(1), TAstaIODataSet(Self));
+    Indexes.Rebuild;
     Findexes.Position:=0;//sm 05/20/2003
     if Self is TAstaIOClientIProvider then
     begin
@@ -1366,7 +1394,7 @@ begin
       b := TAstaBlobList.Create;
       d.BlobList := b;
     end;
-    Indexes.DBListCreated;
+    Indexes.Rebuild;
     Aggregates.DBListCreated;
     GetParamsBack(r.ReadString(1));
     if (csdesigning in ComponentState) or not FAllowPackets then
@@ -1762,7 +1790,7 @@ end;
 function TAstaParamsDataSet.InternalReceiveProviderBroadCast(Sender: TObject; D: TDataSet): Boolean;
 var
   T: TAstaUpdateMethod;
-  bm: DB.TBookmark;
+  bm: TBytes;
   WasFiltered, wasCheckRanges: Boolean;
   CacheData: Boolean;
   IgnoreData: Boolean;
@@ -1812,7 +1840,7 @@ begin
          DefaultApplyProviderBroadcast(Sender, D, result);
         FUpdateMethod := t;
         FDoCheckRanges := wasCheckRanges;
-        if BookmarkValid(bm) then Bookmark := bm;
+        if Length(bm) > 0 then Bookmark := bm;
         if WasFiltered then
           Filtered := True;
         DoAfterBroadcastHandling;
@@ -2099,7 +2127,7 @@ var
   DeltaTypeList: TAstaParamList;
   BookmarkList: TAstaParamList;
   RefetchPackageList: TAstaParamList;
-  bm: DB.TBookmark;
+  bm: TBytes;
   Error: string;
   AstaParamsForExec :TAstaParamList;
   ParamsForExec :TParams; 
@@ -2441,7 +2469,7 @@ var RefetchFieldsParams: TAstaParamList;
     AExtraItemsList: TAstaParamList;
     AutoIncrementFields: TAstaParamList;
     BmInt :Integer;
-    TempBm: DB.TBookmark;
+    TempBm: TBytes;
     Found: Boolean;
     i, j: Integer;
     HoldUpdateMethod: TAstaUpdateMethod;
@@ -2570,7 +2598,7 @@ var
   DeltaTypeList: TAstaParamList;
   BookmarkList: TAstaParamList;
   RefetchPackageList: TAstaParamList;
-  bm, TempBm: DB.TBookmark;
+  bm, TempBm: TBytes;
   Error: string;
   SQLCount: Integer;
   AstaParamsForExec :TAstaParamList;
@@ -2662,7 +2690,7 @@ begin
     if WasFiltered then Filtered := True;
   finally
     if not FoundError then begin
-      if BookmarkValid(bm) then
+      if Length(bm) > 0 then
         bookmark := bm;
     end;
     EnableControls;
@@ -3005,6 +3033,8 @@ begin
     if not ValidReadercheck(R) then exit;
     DataSetSetFieldDefs(TAstaIODataSet(Self), R.ReadString(0));
     AstaUnPackDataSet(0, r.ReadString(1), TAstaIODataSet(Self));
+    Indexes.Rebuild;
+    Aggregates.DBListCreated;
 
     GetParamsBack(r.ReadString(2));
   finally
@@ -3080,7 +3110,7 @@ begin
       b := TAstaBlobList.Create;
       d.BlobList := b;
     end;
-    Indexes.DBListCreated;
+    Indexes.Rebuild;
     Aggregates.DBListCreated;
     GetParamsBack(r.ReadString(2));
   finally

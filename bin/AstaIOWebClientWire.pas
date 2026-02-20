@@ -23,22 +23,14 @@ interface
 
 uses
   SysUtils, Classes,
-  {$IFDEF LINUX}
-  Libc, AstaIOLinuxBase,
-  {$ELSE}
   Windows, WinSock, AstaIOWinBase, AstaIOWinInet,
-  {$ENDIF}
   AstaIOClientWire;
 
 type
   EAstaIOWebClientError = class(Exception);
-  {$IFNDEF LINUX}
   EAstaIOWinInetError = class(Exception);
-  {$ENDIF}
 
-  {$IFNDEF LINUX}
   TAstaIOProxySettings = (psCustom, psSystem);
-  {$ENDIF}
 
   TAstaIOProxy = class(TPersistent)
   private
@@ -46,9 +38,7 @@ type
     FAuthenticate: boolean;
     FPassword: string;
     FPort: word;
-    {$IFNDEF LINUX}
     FSettings: TAstaIOProxySettings;
-    {$ENDIF}
     FUseProxy: boolean;
     FUserID: string;
   public
@@ -59,9 +49,7 @@ type
     property Authenticate: boolean read FAuthenticate write FAuthenticate default False;
     property Password: string read FPassword write FPassword;
     property Port: word read FPort write FPort default 3128;
-    {$IFNDEF LINUX}
     property Settings: TAstaIOProxySettings read FSettings write FSettings default psCustom;
-    {$ENDIF}
     property UseProxy: boolean read FUseProxy write FUseProxy default False;
     property UserID: string read FUserID write FUserID;
   end;
@@ -105,9 +93,7 @@ type
     procedure DoReceiveString; virtual;
     procedure Execute; override;
     procedure ReadData; virtual;
-    {$IFNDEF LINUX}
     procedure ReadWinInetData; virtual;
-    {$ENDIF}
   public
     constructor Create(Wire: TAstaIOWebClientWire; Socket: TAstaClientSocket;
       Interval: integer);
@@ -122,32 +108,24 @@ type
     FWebServer: TAstaIOWebServer;
     FChecker: THttpDataChecker;
     FEvent: TAdvEvent;
-    {$IFNDEF LINUX}
     FInetHandle: THandle;
     FInetConn: THandle;
     FInetRequest: THandle;
-    {$ENDIF}
     FSocket: TAstaClientSocket;
     FPort: word;
     FProxy: TAstaIOProxy;
-    {$IFNDEF LINUX}
     FUseWinInet: boolean;
-    {$ENDIF}
     FKeepAlive: Boolean;
     procedure SetWebServer(const Value: TAstaIOWebServer);
     procedure SetProxy(const Value: TAstaIOProxy);
-    {$IFNDEF LINUX}
     procedure SetUseWinInet(const Value: boolean);
-    {$ENDIF}
     function GetTimeout: Cardinal;
     procedure SetTimeout(const Value: Cardinal);
   protected
     procedure ConnectSocket; virtual;
     procedure DisconnectSocket; virtual;
-    {$IFNDEF LINUX}
     procedure ConnectWinInet; virtual;
     procedure DisconnectWinInet; virtual;
-    {$ENDIF}
     procedure DoConnect(Sender: TObject); override;
     function GetActive: boolean; override;
     function GetAddress: AnsiString; override;
@@ -160,9 +138,7 @@ type
     function SendGetString (S: AnsiString): AnsiString; override;
     procedure SendString(S: AnsiString); override;
     function ValidateURL(URL: string): string;
-    {$IFNDEF LINUX}
     procedure WinInetSendString(S: AnsiString); virtual;
-    {$ENDIF}
    {$ifdef AstaRSA}
     procedure RequestKeysExchange; override;
     {$endif}
@@ -179,9 +155,7 @@ type
   published
     property KeepAlive: Boolean read FKeepAlive write FKeepAlive;
     property Proxy: TAstaIOProxy read FProxy write SetProxy;
-    {$IFNDEF LINUX}
     property UseWinInet: boolean read FUseWinInet write SetUseWinInet default False;
-    {$ENDIF}
     property Timeout: Cardinal read GetTimeout write SetTimeout;
     property WebServer: TAstaIOWebServer read FWebServer write SetWebServer;
   end;
@@ -191,11 +165,7 @@ procedure Register;
 implementation
 
 uses
-  AstaIOMessagePacker, AstaIOConst, AstaIOutBase64, AstaIOParamList
-{$IFNDEF LINUX}
-  , Registry
-{$ENDIF}
-  ;
+  AstaIOMessagePacker, AstaIOConst, AstaIOutBase64, AstaIOParamList, Registry;
 
 const
   AgentName = 'Mozilla/4.0 (compatible; ASTA IO Web Client Wire)';
@@ -205,7 +175,6 @@ begin
   RegisterComponents('AstaIO', [TAstaIOWebClientWire]);
 end;
 
-{$IFNDEF LINUX}
 procedure RaiseWinInetError(Routine: string);
 var
   Err: cardinal;
@@ -214,7 +183,6 @@ begin
   if Err <> ERROR_SUCCESS then
     raise EAstaIOWinInetError.CreateFmt('WinInet Error %d on %s', [Err, Routine]);
 end;
-{$ENDIF}
 
 { TAstaIOProxy }
 
@@ -226,9 +194,7 @@ begin
     FAuthenticate := TAstaIOProxy(Source).Authenticate;
     FPassword := TAstaIOProxy(Source).Password;
     FPort := TAstaIOProxy(Source).Port;
-    {$IFNDEF LINUX}
     FSettings := TAstaIOProxy(Source).Settings;
-    {$ENDIF}
     FUseProxy := TAstaIOProxy(Source).UseProxy;
     FUserID := TAstaIOProxy(Source).UserID;
   end
@@ -243,9 +209,7 @@ begin
   FAuthenticate := False;
   FPassword := '';
   FPort := 3128;
-  {$IFNDEF LINUX}
   FSettings := psCustom;
-  {$ENDIF}
   FUseProxy := False;
   FUserID := '';
 end;
@@ -253,21 +217,17 @@ end;
 { TAstaIOWebClientWire }
 
 procedure TAstaIOWebClientWire.ConnectSocket;
-{$IFNDEF LINUX}
 var
   Reg: TRegistry;
   ProxyEnabled: boolean;
   S, S1: string;
   P: integer;
-{$ENDIF}
 begin
   if FSocket.SocketHandle = INVALID_SOCKET then
   begin
     FSocket.SocketInit;
-    {$IFNDEF LINUX}
     if FProxy.Settings = psCustom then
     begin
-    {$ENDIF}
       if FProxy.UseProxy then
       begin
         FSocket.RemoteHost := FProxy.Address;
@@ -277,7 +237,6 @@ begin
         FSocket.RemoteHost := Address;
         FSocket.RemotePort := Port;
       end;
-    {$IFNDEF LINUX}
     end
     else begin
       Reg := TRegistry.Create;
@@ -342,7 +301,6 @@ begin
         Reg.Free;
       end;
     end;
-    {$ENDIF}
     if FWebServer.UseWebServer and not FProxy.UseProxy then
     begin
       FSocket.RemoteHost := FWebServer.Address;
@@ -353,7 +311,6 @@ begin
   end;
 end;
 
-{$IFNDEF LINUX}
 procedure TAstaIOWebClientWire.ConnectWinInet;
 begin
   if FInetHandle = 0 then
@@ -400,7 +357,6 @@ begin
   InternetCloseHandle(FInetHandle);
   FInetHandle := 0;
 end;
-{$ENDIF}
 
 function TAstaIOWebClientWire.WireCopy:TAstaIOClientWire;
 begin
@@ -435,9 +391,7 @@ begin
   FSocket := TAstaClientSocket.Create;
   FWebServer := TAstaIOWebServer.Create;
   FChecker := THttpDataChecker.Create(Self, FSocket, 500);
-  {$IFNDEF LINUX}
   FUseWinInet := False;
-  {$ENDIF}
 end;
 
 destructor TAstaIOWebClientWire.Destroy;
@@ -662,11 +616,9 @@ end;
 
 procedure TAstaIOWebClientWire.SendString(S: AnsiString);
 begin
-  {$IFNDEF LINUX}
   if FUseWinInet then
     WinInetSendString(S)
   else
-  {$ENDIF}
     NativeSendString(S);
 end;
 
@@ -695,7 +647,6 @@ begin
   FProxy.Assign(Value);
 end;
 
-{$IFNDEF LINUX}
 procedure TAstaIOWebClientWire.SetUseWinInet(const Value: boolean);
 begin
   if FUseWinInet <> Value then
@@ -738,14 +689,13 @@ begin
   Headers := TStringList.Create;
   try
     Headers.Add('Pragma: no-cache');
-    if not HttpSendRequest(FInetRequest, Headers, PChar(S), Length(S)) then
+    if not HttpSendRequest(FInetRequest, Headers, PAnsiChar(S), Length(S)) then
       RaiseWinInetError('HttpSendRequest');
   finally
     Headers.Free;
   end;
   FChecker.Start;
 end;
-{$ENDIF}
 
 procedure TAstaIOWebClientWire.SetWebServer(const Value: TAstaIOWebServer);
 begin

@@ -187,8 +187,10 @@ type
     {$ifdef ASTADES}
     procedure SetDESKey(AKey : PDESKey; KeyType : DesKeyType);
     {$endif}
-    function Encrypt(Data : string): string;
-    function Decrypt(Data : string): string;
+    function Encrypt(Data : AnsiString): AnsiString; overload;
+    function Encrypt(Data : string): string; overload;
+    function Decrypt(Data : AnsiString): AnsiString; overload;
+    function Decrypt(Data : string): string; overload;
     function CopyUserRecord: TUserRecord;
     function UserInfo: string;
     function UserStateToString(UserState: TUserRecordState): string;
@@ -892,10 +894,11 @@ begin
 end;
 {$endif}
 
-function TUserRecord.Encrypt(Data : string): string;
-var InStr,
-    OutStr : TStringStream;
-    Count  : integer;
+function TUserRecord.Encrypt(Data : AnsiString): AnsiString;
+var
+  InStr: TMemoryStream;
+  OutStr: TMemoryStream;
+  Count: Integer;
 begin
   if not FSelfCrypted then
     begin
@@ -908,25 +911,38 @@ begin
   {$ifdef ASTADES}
   if FDESKey = nil then raise Exception.Create('DES key not set');
   {$endif}
-    InStr := TStringStream.Create(Data);
+  InStr := TMemoryStream.Create;
+  try
+    if Length(Data) > 0 then
+      InStr.WriteBuffer(Data[1], Length(Data));
+    InStr.Position := 0;
+    OutStr := TMemoryStream.Create;
     try
-      OutStr := TStringStream.Create('');
-      try
-        Count := InStr.Size;
-        OutStr.Write(Count, sizeof(Count));
-        {$ifdef ASTAAES}
-        EncryptAESStreamECB(InStr, InStr.Size, FAESOutKey^, OutStr);
-        {$endif}
-        {$ifdef ASTADES}
-        EncryptDESStreamECB(InStr, InStr.Size, FDESKey^, OutStr);
-        {$endif}
-        result := OutStr.DataString;
-      finally
-        OutStr.Free;
+      Count := InStr.Size;
+      OutStr.Write(Count, sizeof(Count));
+      {$ifdef ASTAAES}
+      EncryptAESStreamECB(InStr, InStr.Size, FAESOutKey^, OutStr);
+      {$endif}
+      {$ifdef ASTADES}
+      EncryptDESStreamECB(InStr, InStr.Size, FDESKey^, OutStr);
+      {$endif}
+      SetLength(Result, OutStr.Size);
+      if OutStr.Size > 0 then
+      begin
+        OutStr.Position := 0;
+        OutStr.ReadBuffer(Result[1], OutStr.Size);
       end;
     finally
-      InStr.Free;
+      OutStr.Free;
     end;
+  finally
+    InStr.Free;
+  end;
+end;
+
+function TUserRecord.Encrypt(Data: string): string;
+begin
+  Result := string(Encrypt(AnsiString(Data)));
 end;
 procedure TUserRecord.Lock;
 begin
@@ -938,11 +954,12 @@ begin
   FLock.Release;
 end;
 
-function TUserRecord.Decrypt(Data : string): string;
-var InStr,
-    OutStr : TStringStream;
-    Count  : integer;
-    NewHash, OrigHash: TMessageDigest128;
+function TUserRecord.Decrypt(Data : AnsiString): AnsiString;
+var
+  InStr: TMemoryStream;
+  OutStr: TMemoryStream;
+  Count: Integer;
+  NewHash, OrigHash: TMessageDigest128;
 begin
   if not FSelfCrypted then
     begin
@@ -955,34 +972,47 @@ begin
 {$ifdef ASTADES}
   if FDESKey = nil then raise Exception.Create('DES key not set');
 {$endif}
-    InStr := TStringStream.Create(Data);
+  InStr := TMemoryStream.Create;
+  try
+    if Length(Data) > 0 then
+      InStr.WriteBuffer(Data[1], Length(Data));
+    InStr.Position := 0;
+    OutStr := TMemoryStream.Create;
     try
-      OutStr := TStringStream.Create('');
-      try
-        InStr.ReadBuffer(Count, sizeof(Count));
-        {$ifdef ASTAAES}
-        DecryptAESStreamECB(InStr, InStr.Size - InStr.Position, FAESInKey^, OutStr);
-        {$endif}
-        {$ifdef ASTADES}
-        DecryptDESStreamECB(InStr, InStr.Size - InStr.Position, FDESKey^, OutStr);
-        {$endif}
-        if OutStr.Size - Count >= 16 then // check hash
-          begin
-            OutStr.Position := OutStr.Size - 16;
-            OutStr.ReadBuffer(OrigHash, SizeOf(OrigHash));
-            OutStr.Position := 0;
-            NewHash := HashMD5(OutStr, Count);
-            if not CompareMem(@NewHash, @OrigHash, SizeOf(OrigHash)) then
-              raise Exception.Create('Unable to decrypt');
-          end;
-        OutStr.Size := Count;  // restore the original size of data
-        result := OutStr.DataString;
-      finally
-        OutStr.Free;
+      InStr.ReadBuffer(Count, sizeof(Count));
+      {$ifdef ASTAAES}
+      DecryptAESStreamECB(InStr, InStr.Size - InStr.Position, FAESInKey^, OutStr);
+      {$endif}
+      {$ifdef ASTADES}
+      DecryptDESStreamECB(InStr, InStr.Size - InStr.Position, FDESKey^, OutStr);
+      {$endif}
+      if OutStr.Size - Count >= 16 then
+      begin
+        OutStr.Position := OutStr.Size - 16;
+        OutStr.ReadBuffer(OrigHash, SizeOf(OrigHash));
+        OutStr.Position := 0;
+        NewHash := HashMD5(OutStr, Count);
+        if not CompareMem(@NewHash, @OrigHash, SizeOf(OrigHash)) then
+          raise Exception.Create('Unable to decrypt');
+      end;
+      OutStr.Size := Count;
+      SetLength(Result, OutStr.Size);
+      if OutStr.Size > 0 then
+      begin
+        OutStr.Position := 0;
+        OutStr.ReadBuffer(Result[1], OutStr.Size);
       end;
     finally
-      InStr.Free;
+      OutStr.Free;
     end;
+  finally
+    InStr.Free;
+  end;
+end;
+
+function TUserRecord.Decrypt(Data: string): string;
+begin
+  Result := string(Decrypt(AnsiString(Data)));
 end;
 
 constructor TServerUserList.Create(ServerWire: TObject);

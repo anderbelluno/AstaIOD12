@@ -445,7 +445,7 @@ end;
 
 function OffsetPointer(P: Pointer; Offset: Longint): Pointer;
 begin
-  result := Pointer(Longint(P) + Offset);
+  result := Pointer(NativeInt(P) + Offset);
 end;
 
 procedure TAstaMessageReader.Read(Index: Integer; var Value: double);

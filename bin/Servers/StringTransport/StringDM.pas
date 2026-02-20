@@ -190,11 +190,7 @@ var
   i: integer;
 begin
   for i := 0 to ClientParams.Count - 1 do
-    {$ifndef Ver140}
-    TDbisamQuery(DataSet).params.CreateParam(ClientParams[i].DataType, ClientParams[i].Name, TDbisamParamtype(ClientParams[i].Paramtype));
-    {$else}
     TDbisamQuery(DataSet).params.CreateParam(ClientParams[i].DataType, ClientParams[i].Name, ClientParams[i].Paramtype);
-   {$endif}
 end;
 
 procedure TAstaStringDataModule.DataBasePluginCreateProviderParamsEvent(Sender: TObject;

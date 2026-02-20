@@ -42,10 +42,9 @@
 {$define NoThreads}
 {.$define AstaBCD}
 
-{$ifdef ver140}
- {$WARN UNIT_PLATFORM OFF}
- {$WARN SYMBOL_PLATFORM OFF}
-{$endif}
+{$define Delphi6AndUp}
+{$define Delphi2009AndUp}
+{$define Delphi12AndUp}
 
 // uncomment the following row to disable showing
 // Login dialog in TAstaCustomMsgClientWire and descendants

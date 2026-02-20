@@ -214,10 +214,8 @@ procedure Tf_main.DataBasePluginSetProviderParams(Sender: TObject;
 var
  i:integer;
 begin
- {$ifdef Ver140}
- for i:=0 to ClientParams.Count-1 do
-  TDbisamQuery(DataSet).params.CreateParam(ClientParams[i].DataType,ClientParams[i].Name,ClientParams[i].Paramtype);
- {$endif}
+  for i:=0 to ClientParams.Count-1 do
+   TDbisamQuery(DataSet).params.CreateParam(ClientParams[i].DataType,ClientParams[i].Name,ClientParams[i].Paramtype);
 end;
 
 procedure Tf_main.DataBasePluginCreateProviderParamsEvent(Sender: TObject;
@@ -225,11 +223,9 @@ procedure Tf_main.DataBasePluginCreateProviderParamsEvent(Sender: TObject;
 var
  i:integer;
 begin
- {$ifdef Ver140}
- for i:=0 to TDbisamQuery(DataSet).Params.Count-1 do
-  params.CreateParam(TDbisamQuery(DataSet).Params[i].DataType,TDbisamQuery(DataSet).Params[i].Name,TParamtype(TDbisamQuery(DataSet).Params[i].ParamType))
-  ;
- {$endif} 
+  for i:=0 to TDbisamQuery(DataSet).Params.Count-1 do
+   params.CreateParam(TDbisamQuery(DataSet).Params[i].DataType,TDbisamQuery(DataSet).Params[i].Name,TParamtype(TDbisamQuery(DataSet).Params[i].ParamType))
+   ;
 end;
 
 procedure Tf_main.Button1Click(Sender: TObject);

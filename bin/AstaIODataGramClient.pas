@@ -114,7 +114,7 @@ function TAstaIODatagramClientWire.GetReceivingSignature(
   Msg: AnsiString): Integer;
 begin
   if Length(Msg) >= 28 then
-    Move((PChar(Msg) + SizeOf(Integer)*5)^, Result, SizeOf(Integer))
+    Move((PAnsiChar(Msg) + SizeOf(Integer)*5)^, Result, SizeOf(Integer))
   else
     Result := 0;
 end;
@@ -139,7 +139,7 @@ begin
   FClient.ReadBuffer(L, SizeOf(L));
   SetLength(Result, L);
   if L > 0 then
-    FClient.ReadBuffer(PChar(Result)^, L);
+    FClient.ReadBuffer(PAnsiChar(Result)^, L);
   //Delete(Result, 1, 4);
 end;
 
@@ -156,8 +156,8 @@ begin
       begin
         Signature := GetSendingSignature(S);
         S := '    ' + S;
-        PInteger(PChar(S))^ := Length(S) - 4;
-        FClient.WriteBuffer(PChar(S)^, Length(S));
+        PInteger(PAnsiChar(S))^ := Length(S) - 4;
+        FClient.WriteBuffer(PAnsiChar(S)^, Length(S));
       end;
       while True do
        begin
@@ -190,8 +190,8 @@ begin
     if Length(S) > 0 then
       begin
         S := '    ' + S;
-        PInteger(PChar(S))^ := Length(S) - 4;
-        FClient.WriteBuffer(PChar(S)^, Length(S));
+        PInteger(PAnsiChar(S))^ := Length(S) - 4;
+        FClient.WriteBuffer(PAnsiChar(S)^, Length(S));
       end;
     if FClient.DataAvailable then
       ProcessIncoming;

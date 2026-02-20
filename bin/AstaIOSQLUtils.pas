@@ -231,7 +231,7 @@ begin
   else
     result := FormatDateTime('MM/DD/YYYY', D);
   for i := 1 to Length(Result) do
-    if Result[i] = FormatSettings.DateSeparator then Result[i] := '/';
+    if Result[i] = FormatSettings.DecimalSeparator then Result[i] := '/';
 end;
 
 function SQLSingleQuoteCheck(const S: string): string;

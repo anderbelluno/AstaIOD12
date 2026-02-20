@@ -548,8 +548,8 @@ function TAstaSoapParams.GetAsDecimal: Currency;
 var
   OldSep: Char;
 begin
-  OldSep := FormatSettings.DecimalSeparator;
-  FormatSettings.DecimalSeparator := '.';
+  OldSep := DecimalSeparator;
+  DecimalSeparator := '.';
   try
     try
       Result:= StrToCurr(FData);
@@ -558,7 +558,7 @@ begin
       RaiseConvertError;
     end;
   finally
-    FormatSettings.DecimalSeparator := OldSep;
+    DecimalSeparator := OldSep;
   end;
 end;{TAstaSoapParams.GetAsDecimal}
 
@@ -566,12 +566,12 @@ procedure TAstaSoapParams.SetAsDecimal(const Value: Currency);
 var
   OldSep: Char;
 begin
-  OldSep := FormatSettings.DecimalSeparator;
-  FormatSettings.DecimalSeparator := '.';
+  OldSep := DecimalSeparator;
+  DecimalSeparator := '.';
   try
     FData := CurrToStr(Value);
   finally
-    FormatSettings.DecimalSeparator := OldSep;
+    DecimalSeparator := OldSep;
   end;
 end;{TAstaSoapParams.SetAsDecimal}
 
@@ -579,8 +579,8 @@ function TAstaSoapParams.GetAsFloat: Extended;
 var
   OldSep: Char;
 begin
-  OldSep := FormatSettings.DecimalSeparator;
-  FormatSettings.DecimalSeparator := '.';
+  OldSep := DecimalSeparator;
+  DecimalSeparator := '.';
   try
     try
       Result:= StrToFloat(FData);
@@ -589,7 +589,7 @@ begin
       RaiseConvertError;
     end;
   finally
-    FormatSettings.DecimalSeparator := OldSep;
+    DecimalSeparator := OldSep;
   end;
 end;
 
@@ -597,12 +597,12 @@ procedure TAstaSoapParams.SetAsFloat(const Value: Extended);
 var
   OldSep: Char;
 begin
-  OldSep := FormatSettings.DecimalSeparator;
-  FormatSettings.DecimalSeparator := '.';
+  OldSep := DecimalSeparator;
+  DecimalSeparator := '.';
   try
     FData:= FloatToStr(Value);
   finally
-    FormatSettings.DecimalSeparator := OldSep;
+    DecimalSeparator := OldSep;
   end;
 end;
 
@@ -610,8 +610,8 @@ function TAstaSoapParams.GetAsDouble: Double;
 var
   OldSep: Char;
 begin
-  OldSep := FormatSettings.DecimalSeparator;
-  FormatSettings.DecimalSeparator := '.';
+  OldSep := DecimalSeparator;
+  DecimalSeparator := '.';
   try
     try
       Result:= StrToFloat(FData);
@@ -620,7 +620,7 @@ begin
       RaiseConvertError;
     end;
   finally
-    FormatSettings.DecimalSeparator := OldSep;
+    DecimalSeparator := OldSep;
   end;
 end;{TAstaSoapParams.GetAsDouble}
 
@@ -628,12 +628,12 @@ procedure TAstaSoapParams.SetAsDouble(const Value: Double);
 var
   OldSep: Char;
 begin
-  OldSep := FormatSettings.DecimalSeparator;
-  FormatSettings.DecimalSeparator := '.';
+  OldSep := DecimalSeparator;
+  DecimalSeparator := '.';
   try
     FData:= FloatToStr(Value);
   finally
-    FormatSettings.DecimalSeparator := OldSep;
+    DecimalSeparator := OldSep;
   end;
 end;{TAstaSoapParams.SetAsDouble}
 

@@ -1,9 +1,5 @@
 program MultiServerNTS;
 
-{$IFDEF LINUX}
-  {$APPTYPE CONSOLE}
-{$ENDIF}
-
 {$I Compiler.inc}
 
 { 11 MAR 2003: version v0.2
@@ -137,30 +133,9 @@ program MultiServerNTS;
 }
 
 
-(* Since Delphi modifies your project code, this is the first section
-{$IFDEF LINUX}
-  Libc,
-  SysUtils,
-{$ELSE}
-    AnyNTServiceUtils in 'AnyNTServiceUtils.pas',
-    NTFrmServiceUnit in 'NTFrmServiceUnit.pas' {NTFrmService},
-  {$IFDEF SVCOM}
-    SvCom_NTService,
-    SvComMainServiceUnit in 'SvComMainServiceUnit.pas' {SvComMainService: TNtService},
-    SvComFrmServiceUnit in 'SvComFrmServiceUnit.pas' {SvComFrmService},
-  {$ELSE}
-    SvcMgr,
-    NTMainServiceUnit in 'NTMainServiceUnit.pas' {NTMainService: TService},
-  {$ENDIF}
-{$ENDIF}
-  Forms,
 *)
 
 uses
-{$IFDEF LINUX}
-  Libc,
-  SysUtils,
-{$ELSE}
     AnyNTServiceUtils in 'AnyNTServiceUtils.pas',
     NTFrmServiceUnit in 'NTFrmServiceUnit.pas' {NTFrmService},
   {$IFDEF SVCOM}
@@ -171,7 +146,6 @@ uses
     SvcMgr,
     NTMainServiceUnit in 'NTMainServiceUnit.pas' {NTMainService: TService},
   {$ENDIF}
-{$ENDIF}
   Forms,
   AnyCommon in 'AnyCommon.pas',
   DMServerUnit in 'DMServerUnit.pas' {DMServer: TDataModule},
@@ -183,91 +157,6 @@ uses
   DBSessionZeosMySQLUnit in 'DBSessionZeosMySQLUnit.pas' {DBSessionZeosMySQL: TDataModule},
   DBSessionZeosSQLUnit in 'DBSessionZeosSQLUnit.pas' {DBSessionZeosSQL: TDataModule},
   DBSessionZeosPgUnit in 'DBSessionZeosPgUnit.pas' {DBSessionZeosPg: TDataModule};
-
-{$IFDEF LINUX}
-var
-  { vars for daemonizing }
-  bHup, bTerm : boolean;
-  aOld, aTerm, aHup : PSigAction;   //was pSigActionRec
-  ps1  : psigset;
-  sSet : cardinal;
-  pid : longint;
-  secs : longint;
-  { handle SIGHUP & SIGTERM }
-  procedure DoSig(sig : longint);cdecl;
-  begin
-    case sig of
-      SIGHUP : bHup := true;
-      SIGTERM : bTerm := true;
-    end;
-  end;
-begin
-  WriteLn('Starting ', GetTheServiceName, ' daemon server...');
-
-  { All output needs to go into a log file once up and running }
-  LogToFile('Starting as Deamon', 'Bootlog');
-  secs := 3600;
-  { set global daemon booleans }
-  bHup := True; { to open log file }
-  bTerm := False;
-
-  { block all signals except -HUP & -TERM }
-  sSet := $ffffbffe;
-  ps1 := @sSet;
-  sigprocmask(sig_block,ps1,nil);
-
-  { setup the signal handlers }
-  new(aOld);
-  new(aHup);
-  new(aTerm);
-  aTerm^.__sigaction_handler := @DoSig;
-  aTerm^.sa_flags := 0;
-  aTerm^.sa_restorer := nil;
-  aHup^.__sigaction_handler:= @DoSig;
-  aHup^.sa_flags := 0;
-  aHup^.sa_restorer := nil;
-  SigAction(SIGTERM,aTerm,aOld);
-  SigAction(SIGHUP,aHup,aOld);
-
-  { daemonize }
-  pid := Fork;
-  case pid of
-    0:
-      begin { we are in the child }
-        Close(input);  { close standard in }
-        AssignFile(output,'/dev/null');
-        ReWrite(output);
-        AssignFile(ErrOutPut,'/dev/null');
-        ReWrite(ErrOutPut);
-      end;
-    -1:
-      secs := 0; { forking error, so run as non-daemon }
-  else
-    Halt; { successful fork, so parent dies }
-  end;
-
-  { Create any objects before you go into the processing loop}
-  DMServer := TDMServer.Create(nil);
-  try
-    DMServer.ActivateServer;
-  except
-    on E: Exception do
-      bTerm := True
-  end;
-  { begin processing loop }
-  repeat
-    if bHup then bHup := False;
-
-    if (bTerm) then
-    begin
-      DMServer.StopServer;
-      DMServer.Free;
-      break;
-    end
-    else { wait a while }
-      __sleep(secs);
-  until bTerm;
-{$ELSE}
 
 {$R *.RES}
 
@@ -305,7 +194,6 @@ begin
     Forms.Application.ShowMainForm := False;
     Forms.Application.Run;
   end;
-{$ENDIF}
 end.
 
 

@@ -457,9 +457,7 @@ begin
         ftboolean: TIBOQuery(ADataSet).ParamByName(Name).AsBoolean := ParamList[i].AsBoolean;
         ftdatetime: TIBOQuery(ADataSet).ParamByName(Name).AsDateTime := ParamList[i].AsDateTime;
         fttime: TIBOQuery(ADataSet).ParamByName(Name).AsDateTime := ParamList[i].AsTime;
-        {$ifdef Delphi6AndUp}
         ftLargeInt: TIBOQuery(ADataSet).ParamByName(Name).AsLargeInt := ParamList[i].AsLargeInt;
-        {$endif}
         ftdate: TIBOQuery(ADataSet).ParamByName(Name).AsDateTime := ParamList[i].AsDate;
         ftmemo, ftblob: TIBOQuery(ADataSet).ParamByName(Name).AsString := ParamList[i].AsString;
         //ftBCD:TIBOQuery(ADataSet).ParamByName(Name).AsBCD := ParamList[i].AsBCD;

@@ -1,22 +1,13 @@
 unit AstaSoapTypeEditor;
 
 interface
-{$ifdef Ver150}
- {$define Delphi6AndUp}
-{$endif}
-{$ifdef Ver140}
- {$define Delphi6AndUp}
-{$endif}
+interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   AstaSoapMethod, ComCtrls, ToolWin, StdCtrls, ExtCtrls,
   AstaSoapParams, AstaSoapElmEditor,
-  {$ifdef Delphi6andUp}
-  DesignEditors, DesignIntf
-  {$else}
-  DsgnIntf
- {$endif}  ;
+  DesignEditors, DesignIntf;
 
 type
   TfrmAstaSoapTypeEditor = class(TForm)

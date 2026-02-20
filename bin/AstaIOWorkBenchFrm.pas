@@ -19,15 +19,9 @@ unit AstaIOWorkBenchFrm;
 interface
 
 uses SysUtils, DB, Classes,
-     {$IFDEF LINUX}
-     QGraphics, QControls, QForms, QDialogs,
-     QActnList, QImgList, QComCtrls, QDBCtrls, QGrids, QDBGrids, QStdCtrls,
-     QExtCtrls, QButtons, QCheckLst,
-     {$ELSE}
      Graphics, Controls, Forms, Dialogs,
      ToolWin, ComCtrls, ExtCtrls, StdCtrls, Grids,
      DBGrids, ActnList, ImgList, DBCtrls, CheckLst, Buttons,
-     {$ENDIF}
      AstaIOMetadataTreeView,
      AstaIOCustomDataSet, 
      AstaIOClientRemoteDataSet, AstaIOSQLParser;

@@ -26,16 +26,10 @@ unit AstaIOParamList;
 interface
 
 uses Classes, DB, SysUtils,AstaIOUtil,
-  {$IFDEF Delphi6AndUp}
   Variants,
   FmtBcd,
   SqlTimSt,
-  {$ENDIF}
-  {$IFDEF LINUX}
-  Libc,
-  {$ELSE}
   Windows, ActiveX, ComObj,
-  {$ENDIF}
   {$IFNDEF SQLDataSetOnly}
   AstaIOPdaBase,
   AstaIOJavaUtils,
@@ -88,13 +82,9 @@ type
     function GetAsFloat: Double; stdcall;
     function GetAsDateTime: TDateTime; stdcall;
     //// but they could be <G>
-{$IFDEF Windows}
     function GetAsGUID: TGUID;
-{$ENDIF}
-{$ifdef Delphi6AndUp}
     function GetAsFmtBcd: TBcd;
     function GetAsTimeStamp: TSQLTimeStamp;
-{$endif}
     function GetAsAnsiString: AnsiString;
     procedure SetAsAnsiString(Value: AnsiString);
     procedure SetAsString(Value: AnsiString);
@@ -450,8 +440,7 @@ begin
 end;
 
 procedure TAstaParamItem.AssignField(Field: TField);
-var
-  Bytes: TArray<Byte>;
+ var Bytes: TArray<Byte>;
 begin
   if Field <> nil then
   begin
@@ -489,14 +478,16 @@ begin
         ftBlob,
           ftOraBLOB:
           begin
-             // Fixed for D12 Binary compatibility using AsBytes
-             if Field.IsNull then AsBlob := '' else
-             begin
-               Bytes := Field.AsBytes;
-               SetString(FData, PAnsiChar(Bytes), Length(Bytes));
-               AsBlob := FData;
-             end;
-             DataType := Field.DataType;
+            // Fixed for D12 Binary compatibility using AsBytes
+            if Field.IsNull then
+              AsBlob := ''
+            else
+            begin
+              Bytes := Field.AsBytes;
+              SetString(FData, PAnsiChar(Bytes), Length(Bytes));
+              AsBlob := FData;
+            end;
+            DataType := Field.DataType;
           end;
         ftBytes,
           ftVarBytes:
@@ -1859,8 +1850,9 @@ var
   i: Integer;
   Handled: Boolean;
   temp: string;
+  AnsiResult: AnsiString;
 begin
-  result := S;
+  AnsiResult := AnsiString(S);
   for i := 0 to count - 1 do
     if Assigned(OnCustomParamEvent) then
     begin
@@ -1868,22 +1860,25 @@ begin
       temp := '';
       OnCustomParamEvent(self, items[i], Temp, Handled);
       if Handled then
-        ReplaceS(result, ':' + items[i].Name, ' ' + Temp)
+        ReplaceS(AnsiResult, AnsiString(':' + items[i].Name), AnsiString(' ' + Temp))
       else
-        ReplaceS(result, ':' + items[i].Name, ' ' + items[i].SQLFormat(FUseAccessSyntax, FQuotesInDates, FUSDates, FUseDoublequotesInStrings, FDateMask, FDateTimeMask) + ' ');
+        ReplaceS(AnsiResult, AnsiString(':' + items[i].Name), AnsiString(' ' + items[i].SQLFormat(FUseAccessSyntax, FQuotesInDates, FUSDates, FUseDoublequotesInStrings, FDateMask, FDateTimeMask) + ' '));
     end
     else
-      ReplaceS(result, ':' + items[i].Name, ' ' + items[i].SQLFormat(FUseAccessSyntax, FQuotesInDates, FUSDates, FuseDoubleQuotesInStrings, FDateMask, FDateTimeMask) + ' ');
+      ReplaceS(AnsiResult, AnsiString(':' + items[i].Name), AnsiString(' ' + items[i].SQLFormat(FUseAccessSyntax, FQuotesInDates, FUSDates, FuseDoubleQuotesInStrings, FDateMask, FDateTimeMask) + ' '));
     //added space 07/23/98
+  Result := String(AnsiResult);
 end;
 
 function TAstaParamList.NullValuesToSql(S: string): string;
 var
   i: Integer;
+  AnsiResult: AnsiString;
 begin
-  result := S;
+  AnsiResult := AnsiString(S);
   for i := 0 to count - 1 do
-    ReplaceS(result, ':' + items[i].Name, items[i].SQLFormatNull(FUseAccessSyntax, FQuotesInDates, FUSDates, FUseDoubleQuotesInStrings, FDateMask, FDateTimeMask));
+    ReplaceS(AnsiResult, AnsiString(':' + items[i].Name), AnsiString(items[i].SQLFormatNull(FUseAccessSyntax, FQuotesInDates, FUSDates, FUseDoubleQuotesInStrings, FDateMask, FDateTimeMask)));
+  Result := String(AnsiResult);
 end;
 
 function TAstaParamList.MergeValues(L: TStrings; AccessSyntax, UseQuotesInDates, ForceUSDates, DoubleQuotesInStrings: Boolean; OnCustomParamEvent: TSQLCustomParamsEvent; DateMask, DateTimeMask: string): string;
@@ -2475,7 +2470,11 @@ begin
           ftOraBLOB:
           begin
             DataType := Source.DataType;
+            {$IFDEF Delphi2009AndUp}
             AsBlob := Source.AsBytes;
+            {$ELSE}
+            AsBlob := Source.AsString;
+            {$ENDIF}
           end;
         ftBytes,
           ftVarBytes:

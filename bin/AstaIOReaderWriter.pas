@@ -31,7 +31,8 @@ type
   private
   protected
   public
-    procedure WriteString(const Value: AnsiString);
+    procedure WriteString(const Value: AnsiString); overload;
+    procedure WriteString(const Value: string); overload;
   end;
 
   TAstaIOReader = class(TReader)
@@ -62,23 +63,45 @@ begin
   Write(Pointer(Value)^, L);
 end;
 
+procedure TAstaIOWriter.WriteString(const Value: string);
+begin
+  WriteString(AnsiString(Value));
+end;
+
 { TAstaIOReader }
 
 function TAstaIOReader.ReadString: AnsiString;
 var
   L: Integer;
+  U: string;
 begin
   L := 0;
   case ReadValue of
     vaString:
-      Read(L, SizeOf(Byte));
+      begin
+        Read(L, SizeOf(Byte));
+        SetString(Result, PAnsiChar(nil), L);
+        Read(Pointer(Result)^, L);
+      end;
     vaLString:
-      Read(L, SizeOf(Integer));
+      begin
+        Read(L, SizeOf(Integer));
+        SetString(Result, PAnsiChar(nil), L);
+        Read(Pointer(Result)^, L);
+      end;
+    vaUTF8String:
+      Result := AnsiString(inherited ReadString);
+    {$if declared(vaUString)}
+    vaUString,
+    {$ifend}
+    vaWString:
+      begin
+        U := inherited ReadString;
+        Result := AnsiString(U);
+      end;
   else
     raise EReadError.Create(SInvalidPropertyValue);
   end;
-  SetString(Result, PAnsiChar(nil), L);
-  Read(Pointer(Result)^, L);
 end;
 
 end.

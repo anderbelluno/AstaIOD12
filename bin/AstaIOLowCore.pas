@@ -23,15 +23,10 @@ unit AstaIOLowCore;
 
 interface
 uses Classes, SyncObjs, SysUtils, AstaIOMessagePacker,
-{$IFDEF LINUX}
- Libc, AstaIOLinuxBase
-{$ELSE}
  Windows, Dialogs, AstaIOWinBase, Winsock, Forms
   {$ifdef LowCoreCOM}
    ,ActiveX
-  {$endif}
-{$ENDIF}
-;
+  {$endif};
 
 { The stuff in this unit strong depends off the unit AstaIOLinuxBase
   and the unit AstaIOWinBase}

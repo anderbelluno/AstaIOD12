@@ -22,6 +22,8 @@ unit AstaIODataSetProvider;
 {*               www.astatech.com                        *}
 {*********************************************************}
 
+{$I AstaIO.inc}
+
 interface
 
 uses
@@ -1249,7 +1251,11 @@ procedure TAstaIODataSetResolver.BaseApplyUpdates(ADataSet: TDataSet; MaxErrors:
 var CurrentValues    :TAstaIODataSet;
     SingleOldDS,
     SingleCurrDS     :TAstaIODataSet;
+    {$IFDEF Delphi2009AndUp}
     SourceBM, BM     :TBookmark;
+    {$ELSE}
+    SourceBM, BM     :TBookmarkStr;
+    {$ENDIF}
     Hotspot          :Integer;
     Action           :TDeltaType;
     Handled          :Boolean;

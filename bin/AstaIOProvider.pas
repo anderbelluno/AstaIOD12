@@ -25,9 +25,7 @@ uses
   DB,
   SysUtils,
   Classes,
-{$IFDEF LINUX}
   Variants,
-{$ENDIF}
   AstaIOParamList,
   AstaIOUserList,
   AstaIODataBasePlugin,

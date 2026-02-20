@@ -10,21 +10,11 @@
 {$endif}  
 {.$define WideStrChange}
 
-{$ifdef Ver140}  
- {$Define Delphi6AndUp}
-{$endif} 
+{$define Delphi6AndUp}
+{$define Delphi2009AndUp}
+{$define Delphi12AndUp}
 //calls CoInitialize in AstaIOLowCore
 {$define LowCoreCOM}
-{$ifdef Ver150}
- {$Define Delphi6AndUp}
-{$endif} 
-{$if CompilerVersion >= 20.0}
-  {$DEFINE Delphi6AndUp}
-  {$DEFINE Delphi2009AndUp}
-{$ifend}
-{$if CompilerVersion >= 36.0}
-  {$DEFINE Delphi12AndUp}
-{$ifend}
 {$define AstaIOPdaCompile}
 {$DEFINE nestedDataSet}
 {.$define SQLDataSetOnly}
@@ -77,10 +67,6 @@
 {$define NoThreads}
 {.$define AstaBCD}
 
-{$ifdef ver140}
- {$WARN UNIT_PLATFORM OFF}
- {$WARN SYMBOL_PLATFORM OFF}
-{$endif}
 
 // uncomment the following row to disable showing
 // Login dialog in TAstaCustomMsgClientWire and descendants

@@ -6,7 +6,7 @@ interface
 
 uses
   SysUtils, Classes, DB,
-  {$IFDEF D6ANDUP}Variants, {$ELSE} Forms, {$ENDIF}
+  Variants,
   AstaIOMessagePacker, AstaIOUserList, AstaIODBConst, AstaIOCustomDataSet,
   AstaIOParamList, AstaIOMetaData, AstaIOIBInfo, AstaIODataBasePlugin,
   AstaIOServerWire, AstaIOSocketServer, AstaIOConst, AstaIOStringServerWire,
@@ -59,7 +59,7 @@ implementation
 uses IniFiles,
      DBSessionIBXUnit, DBSessionZeosIBUnit, DBSessionZeosMySQLUnit,
      DBSessionZeosSQLUnit, DBSessionZeosPgUnit
-     {$IFNDEF LINUX}, DBSessionADOUnit, DBSessionDBIsamUnit{$ENDIF};
+     , DBSessionADOUnit, DBSessionDBIsamUnit;
 
 {$R *.dfm}
 
@@ -122,12 +122,10 @@ begin
       CreateThePlugin(TDBPluginZeosSQL, 'Starting in MS-SQL Server (Zeos) Mode ...')
     else if SameText(sDB, 'ZeosPg') then
       CreateThePlugin(TDBPluginZeosPg, 'Starting in PostgreSQL (Zeos) Mode ...')
-{$IFNDEF LINUX}
     else if SameText(sDB, 'ADO') then
       CreateThePlugin(TDBPluginADO, 'Starting in ADO Mode ...')
     else if SameText(sDB, 'DBIsam') then
       CreateThePlugin(TDBPluginDbIsam, 'Starting in DbIsam Mode ...')
-{$ENDIF}
     else
       Exit;
 

@@ -1,5 +1,7 @@
 unit XSD;
 
+{$I ..\AstaIO.inc}
+
 {*********************************************************}
 {*   Copyright (c) 2000-2001 Asta Technology Group Inc.  *}
 {*               All rights reserved.                    *}
@@ -27,15 +29,11 @@ function GetFldVal(fld: TField;
 implementation
 
 uses
-{$IFDEF VER150}
-  {$define Delphi6andUP}
+
   Variants,
-{$ENDIF}
-{$IFDEF VER140}
-  {$define Delphi6AndUp}
-  Variants,
-{$ENDIF}
- Variants, Classes, SysUtils, Math, UUX;
+
+  FMTBcd,
+ Classes, SysUtils, Math, UUX;
 {
    MSDN Home >  M,SDN Library >  XML (General) >
    XML Schema Reference (XSD) >  XML Data Types Reference
@@ -623,16 +621,20 @@ var
 begin
   I := Length(Str);
   ValidChars := ['-', '+', '0'..'9', 'e', 'E'];
-  while (I > 0) and CharInSet(Str[I], ValidChars) do
+  while (I > 0) and (Str[I] in ValidChars) do
     Dec(I);
   if I > 0 then
     begin
       Include(ValidChars, AnsiChar(Str[I]));
+{$IFDEF Delphi2009AndUp}
       Str[I] := FormatSettings.DecimalSeparator;
+{$ELSE}
+      Str[I] := DecimalSeparator;
+{$ENDIF}
       Dec(I);
     end;
   while I > 0 do
-    if CharInSet(Str[I], ValidChars) then
+    if Str[I] in ValidChars then
       Dec(I)
     else
       Delete(Str, I, 1);
@@ -662,7 +664,7 @@ begin
 {$ENDIF}
     ftMemo:
       LoadString(fld as TMemoField, val);
-    ftFloat, ftCurrency, ftBcd{$IFDEF VER140}, ftFmtBcd{$ENDIF}:
+    ftFloat, ftCurrency, ftBcd, ftFmtBcd:
       if val <> '' then
         fld.Value := StrToFloatSafe(val)
       else

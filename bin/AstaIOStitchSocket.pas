@@ -25,12 +25,8 @@ interface
 {$I AstaIO.inc}
 
 uses
-  {$IFDEF LINUX}
-  AstaIOLinuxBase, libc,
-  {$ELSE}
   AstaIOWinBase,
   WinSock,
-  {$ENDIF}
   SyncObjs;
 
 type

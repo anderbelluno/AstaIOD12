@@ -8,7 +8,7 @@ uses
   AstaIOUserList,AstaIOCustomDataSet,AstaIODBConst,
   AstaIOProvider,
   AstaIOMetaData, AstaIOServerMethod, AstaIOIProvider,
-  AstaIODBInfo, {$ifdef ver140}FMTBcd,{$endif}  SqlExpr, ZQuery, ZMySqlQuery, ZTransact,
+  AstaIODBInfo, FMTBcd, SqlExpr, ZQuery, ZMySqlQuery, ZTransact,
   ZMySqlTr, ZConnect, ZMySqlCon;
 
 type

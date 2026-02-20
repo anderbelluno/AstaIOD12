@@ -165,7 +165,7 @@ type
     function ProviderByName(U: TUserrecord; ProviderName: string): TComponent;
     function ProviderFromServerMethod(U: TUserRecord; ServerMethodName: string): TComponent;
     function ServerMethodByName(U: TUserRecord; ServerMethodName: string; DataModule: TComponent): TComponent;
-    Function SendResultSetToClient(U:TUserRecord;ADataSet:TDataSet;Token,RowsToReturn,SQLOptions,RemoteDatasetId:Integer;Description,ReturnParams:String;SendToClient:Boolean=True):String;
+    Function SendResultSetToClient(U:TUserRecord;ADataSet:TDataSet;Token,RowsToReturn,SQLOptions,RemoteDatasetId:Integer;Description,ReturnParams:AnsiString;SendToClient:Boolean=True):AnsiString;
     function IProviderByName(U: TUserrecord; ProviderName: string): TComponent;
   public
     property SQLGenerateOptions:TAstaIOSQLOptions read FSQLGenerateOptions write FSQLGenerateOptions;
@@ -195,11 +195,11 @@ type
     procedure DoDatabaseLogin(U: TUserRecord; UserName,Password:String;Var Verified:Boolean);
     function IsAutoDBLogin:Boolean;
     property ServerWire: TComponent read GetServerwire write SetServerWire;
-    function PackDataSet(U: TUserRecord; D: TDataSet; RowsToReturn, SQLOptions: Integer; CallFirst: Boolean): string;
-    function PackFieldDefs(D: TDataSet;Delphi5Client:Boolean): string;
+    function PackDataSet(U: TUserRecord; D: TDataSet; RowsToReturn, SQLOptions: Integer; CallFirst: Boolean): AnsiString;
+    function PackFieldDefs(D: TDataSet;Delphi5Client:Boolean): AnsiString;
     procedure SendExceptionToClient(U: TUserRecord; Msg: string;ComponentOrigin:Integer);overload;
     procedure SendExceptionToClient(U: TUserRecord; Msg: string);overload;
-    function PackedDataset(D: TDataSet; CreateDataSetOnServer: Boolean): string;
+    function PackedDataset(D: TDataSet; CreateDataSetOnServer: Boolean): AnsiString;
     procedure SessionInventoryCallBackEvent(Sender: TObject; ASession: TObject; ASessionName: string;
       DataModuleList: TList; List: TAstaInfoDataSetList);
 
@@ -215,7 +215,7 @@ type
     procedure ProcessStoredProcSelect(U: TUserRecord);
     procedure ProcessStoredProcExec(U: TUserRecord);
     procedure ProcessSQLSelect(U: TUserRecord);
-    Function  ExpressWayProcessSQLSelect(U: TUserRecord; DataBaseStr, SQLString, ParamListString: string; RowsToReturn, SQLOptions, RemoteDatasetId: Integer):String;
+    Function  ExpressWayProcessSQLSelect(U: TUserRecord; DataBaseStr, SQLString, ParamListString: string; RowsToReturn, SQLOptions, RemoteDatasetId: Integer):AnsiString;
     procedure ProcessMultipleSQLExec(U: TUserRecord);
     procedure ProcessExecSQL(U: TUserRecord);
     procedure ProcessMetaData(U: TUserRecord);
@@ -240,7 +240,7 @@ type
     procedure DoProcessPacketQueryClose(U: TUserRecord; RemoteDataSetid:Integer);
     procedure DoProcessIProvider(U: TUserRecord; DataBaseStr, ProviderName, CommandText, ParamListString: string; RowsToReturn, SQLOptions,RemoteDataSetId: Integer);
     procedure DoProcessIProviderExecute(U: TUserRecord; DataBaseStr, ProviderName, CommandText, ParamListString: string; RowsToReturn, SQLOptions: Integer);
-    procedure DoProcessIProviderModify(U: TUserRecord; DataString: string);
+    procedure DoProcessIProviderModify(U: TUserRecord; DataString: AnsiString);
     procedure DoProcessIProviderFetchParams(U: TUserRecord; DataBaseStr, ProviderName, ParamListString: string);
     procedure DoProcessStoredProcSelect(U: TUserRecord; DataBaseStr, StoredProcName, ParamListString: string; RowsToReturn, SQLOptions, RemoteDataSetId: Integer);
     procedure DoProcessStoredProcExec(U: TUserRecord; DataBaseStr, StoredProcName, ParamListString: string; SQLOptions: Integer); // sm 10/04/2002
@@ -249,7 +249,7 @@ type
     Function DoProcessMultiSQLTransaction(U: TUserRecord; TransactionName :String; DataList: TAstaparamList; FireTransaction :Boolean):Boolean;
     procedure DoProcessProviderTransaction(U: TUserRecord; TransactionName :String; DataString: string);
     procedure DoProcessServerMethodExec(U: TUserRecord; DataBaseStr, ServerMethodName, ParamListString: string;IsAsync:Boolean);
-    procedure DoProcessServerMethodTransaction(U: TUserRecord; DataString: string);
+    procedure DoProcessServerMethodTransaction(U: TUserRecord; DataString: AnsiString);
 
 //xx    procedure ProcessExecProc(U: TUserRecord; DataBaseStr, StoredProcNm, ParamListString: string; SQLOptions: Integer);
     procedure ProcessProcSelect(U: TUserRecord; DataBaseStr, StoredProcNm, ParamListString: string; RowsToReturn, SQLOptions,RemoteDataSetId: Integer);
@@ -305,6 +305,29 @@ uses Sysutils,
 
 type
   TCustomAstaServerWireCracker = class(TCustomAstaServerWire);
+
+function FieldToAnsiString(Field: TField): AnsiString;
+var
+  Stream: TMemoryStream;
+begin
+  Result := '';
+  if Field = nil then
+    Exit;
+  if Field is TBlobField then
+  begin
+    if Field.IsNull then
+      Exit;
+    Stream := TMemoryStream.Create;
+    try
+      TBlobField(Field).SaveToStream(Stream);
+      Result := StreamToString(Stream);
+    finally
+      Stream.Free;
+    end;
+  end
+  else
+    Result := AnsiString(Field.AsString);
+end;
 
 function FakeDataSet(Rows: Integer): TAstaIODataSet;
 var
@@ -425,12 +448,12 @@ begin
   FThreadOptions := Value;
 end;
 *)
-function TAstaIODataBasePlugin.PackedDataset(D: TDataSet; CreateDataSetOnServer: Boolean): string;
+function TAstaIODataBasePlugin.PackedDataset(D: TDataSet; CreateDataSetOnServer: Boolean): AnsiString;
 begin
 
 end;
 
-function TAstaIODataBasePlugin.PackDataSet(U: TUserRecord; D: TDataSet; RowsToReturn, SQLOptions: Integer; CallFirst: Boolean): string;
+function TAstaIODataBasePlugin.PackDataSet(U: TUserRecord; D: TDataSet; RowsToReturn, SQLOptions: Integer; CallFirst: Boolean): AnsiString;
 begin
  try
   result := AstaPackDataSet(U, d, RowsToReturn, SQLOptions, CallFirst, nil);
@@ -442,7 +465,7 @@ begin
  end;
 end;
 
-function TAstaIODataBasePlugin.PackFieldDefs(D: TDataSet;Delphi5Client:Boolean): string;
+function TAstaIODataBasePlugin.PackFieldDefs(D: TDataSet;Delphi5Client:Boolean): AnsiString;
 begin
   result := FieldDefsToString(d,Delphi5Client);
 end;
@@ -735,10 +758,10 @@ end;
 
 procedure TAstaIODataBasePlugin.ProcessExpressWayDataSetSelect(U: TUserRecord);
 var
-localmsg,Msg:String;
-i:Integer;
-Localreader:TAstaMessageReader;
-p,outp:TAstaParamList;
+  localmsg, Msg: AnsiString;
+  i: Integer;
+  Localreader: TAstaMessageReader;
+  p, outp: TAstaParamList;
 begin
   P:=TAstaParamList.CreateFromTokenizedString(U.Reader.ReadString(0));
   OutP:=TAstaParamList.Create;
@@ -746,7 +769,7 @@ begin
   for i:=0 to P.count-1 do begin
     msg:=P[i].AsString;
     LocalReader:=TAstaMessageReader.Create;
-    LocalReader.Setup(pchar(msg));
+    LocalReader.Setup(PAnsiChar(msg));
    try
     localMsg:=ExpressWayProcessSQLSelect(U, LocalReader.ReadString(0), LocalReader.ReadString(1), LocalReader.ReadString(2),
       LocalReader.ReadInteger(3), LocalReader.ReadInteger(4), LocalReader.ComponentOrigin);
@@ -988,7 +1011,7 @@ begin
   end;
 end;
 
-Function TAstaIODataBasePlugin.ExpressWayProcessSQLSelect(U: TUserRecord; DataBaseStr, SQLString, ParamListString: string; RowsToReturn, SQLOptions, RemoteDatasetId: Integer):String;
+Function TAstaIODataBasePlugin.ExpressWayProcessSQLSelect(U: TUserRecord; DataBaseStr, SQLString, ParamListString: string; RowsToReturn, SQLOptions, RemoteDatasetId: Integer):AnsiString;
 var
   AstaParams: TAstaParamList;
   ADataSet: TDataSet;
@@ -1071,7 +1094,7 @@ begin
 end;
 
 Function TAstaIODataBasePlugin.SendResultSetToClient(U:TUserRecord;ADataSet:TDataSet;
-         Token,RowsToReturn,SQLOptions,RemoteDataSetId :Integer;Description,ReturnParams:String;SendToClient:boolean=True):String;
+         Token,RowsToReturn,SQLOptions,RemoteDataSetId :Integer;Description,ReturnParams:AnsiString;SendToClient:boolean=True):AnsiString;
     Function RowsOpenOnServer:Boolean;
     begin
      result:=(IsPersistentSession(U)) and (soPackets in IntegerToDataSetOptions(SQLOptions)) and (RowsToReturn>0) and not (ADataSet.Eof);
@@ -1080,7 +1103,7 @@ Function TAstaIODataBasePlugin.SendResultSetToClient(U:TUserRecord;ADataSet:TDat
      //for providers and server methods the Queries get closed but NOT freed
      //client Side SQL Selects need to be destroyed
     end;
-    Procedure LocalSendString(Msg:String);
+    Procedure LocalSendString(Msg:AnsiString);
     begin
       if SendToClient then
        TAstaIOServerWire(FServerWire).SendString(U,Msg)
@@ -1372,7 +1395,7 @@ begin
     DoProcessIProviderModify(U, Reader.ReadString(0));
 end;
 
-procedure TAstaIODataBasePlugin.DoProcessIProviderModify(U: TUserRecord; DataString: string);
+procedure TAstaIODataBasePlugin.DoProcessIProviderModify(U: TUserRecord; DataString: AnsiString);
 var
   ADataSet: TAstaIODataSet;
   FCurrentDataSet: TAstaIODataSet;
@@ -1388,9 +1411,9 @@ begin
       ADataSet.First;
       while not ADataSet.Eof do
       begin
-        FCurrentDataSet := StringToDataSet(ADataSet.FieldByName('CurrentValuesDataSet').AsString);
+        FCurrentDataSet := StringToDataSet(FieldToAnsiString(ADataSet.FieldByName('CurrentValuesDataSet')));
         try
-          FOldValuesDataSet := StringToDataSet(ADataSet.FieldByName('OldValuesDataSet').AsString);
+          FOldValuesDataSet := StringToDataSet(FieldToAnsiString(ADataSet.FieldByName('OldValuesDataSet')));
           try
             IProvider := ProviderByName(U, Trim(ADataSet.FieldByName('ProviderName').AsString));
             if IProvider = nil then
@@ -1927,7 +1950,7 @@ begin
   end;
 end;
 
-procedure TAstaIODataBasePlugin.DoProcessServerMethodTransaction(U: TUserRecord; DataString: string);
+procedure TAstaIODataBasePlugin.DoProcessServerMethodTransaction(U: TUserRecord; DataString: AnsiString);
 var
   ADataSet: TAstaIODataSet;
   FCurrentDataSet: TAstaIODataSet;
@@ -1947,9 +1970,9 @@ begin
       ADataSet.First;
       while not ADataSet.Eof do
       begin
-        FCurrentDataSet := StringToDataSet(ADataSet.FieldByName('CurrentValuesDataSet').AsString);
+        FCurrentDataSet := StringToDataSet(FieldToAnsiString(ADataSet.FieldByName('CurrentValuesDataSet')));
         try
-          FOldValuesDataSet := StringToDataSet(ADataSet.FieldByName('OldValuesDataSet').AsString);
+          FOldValuesDataSet := StringToDataSet(FieldToAnsiString(ADataSet.FieldByName('OldValuesDataSet')));
           try
             ServerMethod := ServerMethodByName(U, Trim(ADataSet.FieldByName('ServerMethodName').AsString), U.DatabaseSession);
             TAstaIOServerMethodResultSet(ServerMethod).UserRecord:=U;
@@ -2083,9 +2106,9 @@ begin
       while not ADataSet.Eof and FinalCommit do //mvs
       begin
         //if not ADataSet.Locate('ProviderName', TAstaIOProvider(ProviderList[i]).Name, [loCaseInsensitive]) then Continue;
-        FCurrentDataSet := StringToDataSet(ADataSet.FieldByName('CurrentValuesDataSet').AsString);
+        FCurrentDataSet := StringToDataSet(FieldToAnsiString(ADataSet.FieldByName('CurrentValuesDataSet')));
         try
-          FOldValuesDataSet := StringToDataSet(ADataSet.FieldByName('OldValuesDataSet').AsString);
+          FOldValuesDataSet := StringToDataSet(FieldToAnsiString(ADataSet.FieldByName('OldValuesDataSet')));
           try
             Provider := ProviderByName(U, Trim(ADataSet.FieldByName('ProviderName').AsString));
             if Provider = nil then

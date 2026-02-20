@@ -30,6 +30,8 @@ Uses SysUtils, Classes, DB, AstaIODBList;
 type
   TAstaIOIndex = class;
   TAstaIOIndexes = class;
+  TPointerArray = array[0..$effffff] of Pointer;
+  PPointerArray = ^TPointerArray;
 
   TAstaIOIndexOption = (ioPrimary, ioUnique, ioDescending, ioCaseInsensitive,
     ioNonMaintained, ioNatural);
@@ -711,7 +713,7 @@ end;
 
 function TAstaIOIndex.RecordDeleted(ARec: TAstaDBListItem): Integer;
 begin
-  if ioNatural in Options then
+  if (ioNatural in Options) and (not FRecsOwned) then
     Result := -1
   else if DataSet.Active then begin
     Result := FRecs.IndexOf(ARec);
@@ -747,7 +749,7 @@ begin
         raise Exception.CreateFmt(SViolUniqueIndex, [Name, Fields]);
     if (ioDescending in Options) and not (ioNatural in Options) then
       Inc(Result);
-    if ioNatural in Options then begin
+    if (ioNatural in Options) and (not FRecsOwned) then begin
       if Result < ARec.Index then
         Inc(Result);
       if Result >= FRecs.Count then
@@ -794,7 +796,7 @@ var
 begin
   if (isUpdating in FStatuses) or (isHasCalcs in FStatuses) then begin
     if Active and DataSet.Active then begin
-      if ioNatural in Options then
+      if (ioNatural in Options) and (not FRecsOwned) then
         Result := RecordInserted(ARec)
       else begin
         delRec := nil;
@@ -860,7 +862,7 @@ begin
     BeginUpdate;
     try
       Clear;
-      if DataSet.Active then begin
+      if DataSet.Active or ((DataSet is TAstaIOCustomDataSet) and (__TAstaIOCustomDataSet(DataSet).FIsOpen or (TAstaIOCustomDataSet(DataSet).FAstaList <> nil))) then begin
         AddRecords;
         Sort;
         Include(FStatuses, isActual);
@@ -880,10 +882,11 @@ end;
 
 procedure TAstaIOIndex.Clear;
 begin
-  if ioNatural in Options then
+  if (ioNatural in Options) and (not FRecsOwned) then
     Exit;
   Changing(irMaintenance);
-  FRecs.Clear;
+  if FRecs <> nil then
+    FRecs.Clear;
   Exclude(FStatuses, isActual);
   Changed(irMaintenance);
 end;
@@ -893,12 +896,14 @@ var
   astaDS: TAstaIOCustomDataSet;
   i: Integer;
 begin
-  if ioNatural in Options then
-    Exit;
   astaDS := TAstaIOCustomDataSet(DataSet);
   astaDS.FetchAll(False);
   if astaDS.FAstaList <> nil then begin
     Changing(irMaintenance);
+    if FRecs = nil then begin
+      FRecs := TList.Create;
+      FRecsOwned := True;
+    end;
     FRecs.Capacity := astaDS.FAstaList.Count;
     for i := 0 to astaDS.FAstaList.Count - 1 do
       FRecs.Add(astaDS.FAstaList[i]);
@@ -990,6 +995,7 @@ var
   opts: TAstaIOIndexCompareRecOptions;
   i: Integer;
 begin
+  if (ioNatural in Options) then Exit;
   if FRecs.Count >= 2 then begin
     Changing(irMaintenance);
     opts := [crUseBookmark];
@@ -1206,15 +1212,28 @@ begin
 end;
 
 procedure TAstaIOIndex.DBListCreated;
+var
+  LList: TAstaDBList;
+  i: Integer;
 begin
   if ioNatural in Options then begin
-    if FRecsOwned and (FRecs <> nil) then begin
+    if FRecsOwned and (FRecs <> nil) then
+    begin
       FRecs.Free;
       FRecs := nil;
     end;
+    if FRecs = nil then begin
+      FRecs := TList.Create;
+      FRecsOwned := True;
+    end;
+
     if (DataSet <> nil) and (TAstaIOCustomDataSet(DataSet).FAstaList <> nil) then
-      FRecs := __TCollection(TAstaIOCustomDataSet(DataSet).FAstaList).FItems;
-    FRecsOwned := False;
+    begin
+      LList := TAstaIOCustomDataSet(DataSet).FAstaList;
+      FRecs.Capacity := LList.Count;
+      for i := 0 to LList.Count - 1 do
+        FRecs.Add(LList.Items[i]);
+    end;
   end;
 end;
 
@@ -2061,9 +2080,9 @@ end;
 
 procedure TAstaIOAggregate.GetAggVals(ARec: TastaDBListitem; var AValObj, ACntObj: TAstaIOAggregateValue);
 begin
-  AValObj := ARec.FAggs^[FValueIndex];
+  AValObj := PPointerArray(ARec.FAggs)^[FValueIndex];
   if AggKind = akAvg then
-    ACntObj := ARec.FAggs^[FCountIndex]
+    ACntObj := PPointerArray(ARec.FAggs)^[FCountIndex]
   else
     ACntObj := nil;
 end;
@@ -2071,23 +2090,23 @@ end;
 procedure TAstaIOAggregate.AttachAggVals(ARec: TastaDBListitem; AValObj, ACntObj: TAstaIOAggregateValue);
 begin
   AValObj.Attach;
-  ARec.FAggs^[FValueIndex] := AValObj;
+  PPointerArray(ARec.FAggs)^[FValueIndex] := AValObj;
   if AggKind = akAvg then begin
     ACntObj.Attach;
-    ARec.FAggs^[FCountIndex] := ACntObj;
+    PPointerArray(ARec.FAggs)^[FCountIndex] := ACntObj;
   end;
 end;
 
 procedure TAstaIOAggregate.DetachAggVals(ARec: TastaDBListitem);
 begin
-  if ARec.FAggs^[FValueIndex] <> nil then begin
-    TAstaIOAggregateValue(ARec.FAggs^[FValueIndex]).Detach;
-    ARec.FAggs^[FValueIndex] := nil;
+  if PPointerArray(ARec.FAggs)^[FValueIndex] <> nil then begin
+    TAstaIOAggregateValue(PPointerArray(ARec.FAggs)^[FValueIndex]).Detach;
+    PPointerArray(ARec.FAggs)^[FValueIndex] := nil;
   end;
   if AggKind = akAvg then
-    if ARec.FAggs^[FCountIndex] <> nil then begin
-      TAstaIOAggregateValue(ARec.FAggs^[FCountIndex]).Detach;
-      ARec.FAggs^[FCountIndex] := nil;
+    if PPointerArray(ARec.FAggs)^[FCountIndex] <> nil then begin
+      TAstaIOAggregateValue(PPointerArray(ARec.FAggs)^[FCountIndex]).Detach;
+      PPointerArray(ARec.FAggs)^[FCountIndex] := nil;
     end;
 end;
 
@@ -2266,10 +2285,10 @@ begin
                         dsCurValue, dsInternalCalc]) and
      ((IndexName = '') or (Level = 0) or aggs.FIndexes.IndexByName(IndexName).Selected) then begin
     DataSet.UpdateCursorPos;
-    valObj := aggs.FIndexes.Rec.FAggs^[FValueIndex];
+    valObj := PPointerArray(aggs.FIndexes.Rec.FAggs)^[FValueIndex];
     if valObj <> nil then
       if AggKind = akAvg then begin
-        cntObj := aggs.FIndexes.Rec.FAggs^[FCountIndex];
+        cntObj := PPointerArray(aggs.FIndexes.Rec.FAggs)^[FCountIndex];
         if (cntObj <> nil) and
            not VarIsNull(valObj.Value) and not VarIsNull(cntObj.Value) and
            (cntObj.Value > 0) then begin
@@ -2539,13 +2558,13 @@ begin
   if Result >= FAggCellsAllocated then begin
     for i := 0 to FRecs.Count - 1 do begin
       ReallocMem(FRecs[i].FAggs, (Result + 4) * SizeOf(Pointer));
-      FillChar(FRecs[i].FAggs^[FAggCellsAllocated],
+      FillChar(PPointerArray(FRecs[i].FAggs)^[FAggCellsAllocated],
         (Result + 4 - FAggCellsAllocated) * SizeOf(Pointer), #0);
     end;
     FAggCellsAllocated := Result + 4;
   end;
   for i := 0 to FRecs.Count - 1 do
-    FRecs[i].FAggs^[Result] := nil;
+    PPointerArray(FRecs[i].FAggs)^[Result] := nil;
 end;
 
 procedure TAstaIOAggregates.DeleteValues(var AIndex: Integer);
@@ -2554,9 +2573,9 @@ var
 begin
   try
     for i := 0 to FRecs.Count - 1 do
-      if FRecs[i].FAggs^[AIndex] <> nil then begin
-        TAstaIOAggregateValue(FRecs[i].FAggs^[AIndex]).Detach;
-        FRecs[i].FAggs^[AIndex] := nil;
+      if PPointerArray(FRecs[i].FAggs)^[AIndex] <> nil then begin
+        TAstaIOAggregateValue(PPointerArray(FRecs[i].FAggs)^[AIndex]).Detach;
+        PPointerArray(FRecs[i].FAggs)^[AIndex] := nil;
       end;
   finally
     FValuesPool.Bits[AIndex] := False;
@@ -2625,7 +2644,7 @@ procedure TAstaIOAggregates.DoRecAdded(ARec: TAstaDBListItem);
 begin
   if FAggCellsAllocated > 0 then begin
     GetMem(ARec.FAggs, FAggCellsAllocated * SizeOf(Pointer));
-    FillChar(ARec.FAggs^[0], FAggCellsAllocated * SizeOf(Pointer), #0);
+    FillChar(PPointerArray(ARec.FAggs)^[0], FAggCellsAllocated * SizeOf(Pointer), #0);
   end;
 end;
 
@@ -2635,9 +2654,9 @@ var
 begin
   if FAggCellsAllocated > 0 then begin
     for i := 0 to FAggCellsAllocated - 1 do
-      if ARec.FAggs^[i] <> nil then begin
-        TAstaIOAggregateValue(ARec.FAggs^[i]).Detach;
-        ARec.FAggs^[i] := nil;
+      if PPointerArray(ARec.FAggs)^[i] <> nil then begin
+        TAstaIOAggregateValue(PPointerArray(ARec.FAggs)^[i]).Detach;
+        PPointerArray(ARec.FAggs)^[i] := nil;
       end;
     FreeMem(ARec.FAggs, FAggCellsAllocated * SizeOf(Pointer));
     ARec.FAggs := nil;

@@ -36,6 +36,7 @@ type
     procedure SaveToFile(const FileName: string); virtual;
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;
+    procedure LoadFromReader(Reader: TAstaIOReader); virtual;
     procedure LoadFromFile(const FileName: string); virtual;
   end;
   TAstaFieldItem = class(TCollectionItem)
@@ -68,10 +69,8 @@ type
 
 implementation
 
-uses {$IFDEF Delphi6AndUp}
-     FMTBcd,
+uses FMTBcd,
      SqlTimSt,
-     {$ENDIF}
      SysUtils;
 
 const
@@ -125,23 +124,29 @@ begin
   end;
 end;
 
-procedure TAstaCollection.LoadFromStream(Stream: TStream);
+procedure TAstaCollection.LoadFromReader(Reader: TAstaIOReader);
 var
-  Reader: TAstaIOReader;
   StreamedClassName: string;
 begin
   if not Assigned(FLoadData) then exit;
   Clear;
+  with Reader do
+  begin
+    StreamedClassName := ReadString;
+    ReadListBegin;
+    while not EndOfList do
+      FLoadData(self, Add, Reader);
+    ReadListEnd;
+  end;
+end;
+
+procedure TAstaCollection.LoadFromStream(Stream: TStream);
+var
+  Reader: TAstaIOReader;
+begin
   Reader := TAstaIOReader.Create(Stream, 1024);
   try
-    with Reader do
-    begin
-      StreamedClassName := ReadString;
-      ReadListBegin;
-      while not EndOfList do
-        FLoadData(self, Add, Reader);
-      ReadListEnd;
-    end;
+    LoadFromReader(Reader);
   finally
     Reader.Free;
   end;
@@ -213,8 +218,9 @@ begin
       ftfmtmemo,
       ftTypedBinary,
       ftgraphic:    Result := AstaMemoSize;
-    ftwidestring,
-      ftFixedWideChar: Result := StringSize * 2;
+    ftwidestring
+      ,ftFixedWideChar
+      : Result := StringSize * 2;
     ftString,
       ftVarBytes,
       ftBytes,
@@ -230,10 +236,8 @@ begin
     ftFloat,
       ftCurrency: result := Sizeof(Double);
     ftBcd:        result := Sizeof(Currency);
-    {$ifdef Delphi6AndUp}
     ftFmtBcd:     result := Sizeof(TBcd);
     ftTimeStamp:  result := SizeOf(TSqlTimeStamp);
-    {$endif}
     ftDate,
       ftDateTime: Result := Sizeof(TDateTime);
   end;
@@ -271,7 +275,7 @@ begin
   begin
     items[i].FOffset := Result;
     result := result + items[i].FFieldSize;
-    result := result + items[i].FFieldPrecision;
+    //result := result + items[i].FFieldPrecision;
   end;
 end;
 

@@ -5,11 +5,7 @@ interface
 {$I Compiler.inc}
 
 uses Classes,
-    {$IFDEF D6ANDUP}
       Variants,
-    {$ELSE}
-      Forms, FileCtrl,
-    {$ENDIF}
      SysUtils;
 
 
@@ -48,17 +44,12 @@ end;
 function RemoveBackSlash(const DirName: string): string;
 begin
   Result := DirName;
-{$IFDEF LINUX}
-  if (Length(Result) > 1) and (AnsiLastChar(Result)^ = '/') then
-    Delete(Result, Length(Result), 1);
-{$ELSE}
   if (Length(Result) > 1) and (AnsiLastChar(Result)^ = '\') then
   begin
     if not ((Length(Result) = 3) and (UpCase(Result[1]) in ['A'..'Z']) and
       (Result[2] = ':')) then
       Delete(Result, Length(Result), 1);
   end;
-{$ENDIF}
 end;
 
 function ReplaceStr(const S, Srch, Replace: string): string;
@@ -81,11 +72,7 @@ end;
 procedure ForceDirectories(Dir: string);
 begin
   if Length(Dir) = 0 then Exit;
-{$IFDEF LINUX}
-  if (AnsiLastChar(Dir) <> nil) and (AnsiLastChar(Dir)^ = '/') then Delete(Dir, Length(Dir), 1);
-{$ELSE}
   if (AnsiLastChar(Dir) <> nil) and (AnsiLastChar(Dir)^ = '\') then Delete(Dir, Length(Dir), 1);
-{$ENDIF}
   if (Length(Dir) < 3) or DirectoryExists(Dir) or (ExtractFilePath(Dir) = Dir) then Exit;
 
   ForceDirectories(ExtractFilePath(Dir));
@@ -98,19 +85,11 @@ var
   FileName, FileDir: string;
 begin
   try
-{$IFDEF LINUX}
-    FileDir := RemoveBackSlash(ExtractFilePath(ParamStr(0))) + '/Log/';
-{$ELSE}
     FileDir := RemoveBackSlash(ExtractFilePath(ParamStr(0))) + '\Log\';
-{$ENDIF}
     try
       ForceDirectories(FileDir);
     except
-{$IFDEF LINUX}
-      FileDir := RemoveBackSlash(ExtractFilePath(ParamStr(0))) + '/';
-{$ELSE}
       FileDir := RemoveBackSlash(ExtractFilePath(ParamStr(0))) + '\';
-{$ENDIF}
     end;
 
     FileName := ExtractFileName(ParamStr(0));

@@ -3,9 +3,7 @@ unit AstaSoapXMLParser;
 interface
 
 uses
-{$IFDEF Delphi6AndUp}
   Variants,
-{$ENDIF}
   SysUtils, Classes, AstaSoapParams, XML_Thunk;
 
 type

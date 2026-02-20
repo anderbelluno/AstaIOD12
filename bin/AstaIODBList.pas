@@ -29,22 +29,14 @@ unit AstaIODBList;
 interface
 
 uses Classes, DB,
-     {$IFDEF Delphi6AndUp}
      FMTBcd,
      SqlTimSt,
-     {$ENDIF}
      AstaIOReaderWriter,
      AstaIOFList;
 
 type
   TAstaDBListItem = class;
   TAstaDBList = class;
-
-  TArrInt = array[0..10000] of integer;
-  PInteger = ^TArrInt;
-
-  TPointerArray = array[0..10000] of Pointer;
-  PPointer = ^TPointerArray;
 
   TAstaDBListItem = class(TCollectionItem)
   private
@@ -76,10 +68,8 @@ type
     procedure PutLargeInteger(Field: Integer; Value: Int64; IsNull: Boolean); overload;
     procedure PutDouble(Field: Integer; Value: Double; IsNull: Boolean);
     procedure PutCurrency(Field: Integer; Value: Currency; IsNull: Boolean);
-{$ifdef Delphi6AndUp}
     procedure PutFmtBcd(Field: Integer; const Value: TBcd; IsNull: Boolean);
     procedure PutTimeStamp(Field: Integer; const Value: TSQLTimeStamp; IsNull: Boolean);
-{$endif}
     function GetString(Field: Integer): string;
     function GetAnsiString(Field: Integer): string;
     function GetBoolean(Field: Integer): WordBool;
@@ -88,9 +78,7 @@ type
     function GetLargeInteger(Field: Integer): Int64;
     function GetDouble(Field: Integer): Double;
     function GetCurrency(Field: Integer): Currency;
-{$ifdef Delphi6AndUp}
     function GetFmtBcd(Field: Integer): TBcd;
-{$endif}
     function GetPointer(Field: Integer): Pointer;
     procedure PutToBuffer(Buffer: Pchar);
     procedure GetFromBuffer(Buffer: Pchar);
@@ -145,9 +133,7 @@ type
     function GetBufferLargeInteger(Buffer: Pointer; Field: Integer): Int64;
     function GetBufferDouble(Buffer: Pointer; Field: Integer): Double;
     function GetBufferCurrency(Buffer: Pointer; Field: Integer): Currency;
-{$ifdef Delphi6AndUp}
     function GetBufferFmtBcd(Buffer: Pointer; Field: Integer): TBcd;
-{$endif}
     function GetBufferFieldNull(Buffer: Pointer; Field: Integer): Boolean;
     //db like gets
     function GetFieldName(Field: Integer): string;
@@ -169,10 +155,8 @@ type
   WordPtr = ^Word;
   WordBoolPtr = ^WordBool;
   LargeIntPtr = ^Int64;
-{$ifdef Delphi6AndUp}
   BcdPtr = ^TBcd;
   SQLTimeStampPtr = ^TSQLTimeStamp;
-{$endif}
 
 {$HINTS OFF}
 type
@@ -398,9 +382,7 @@ end;
 function TAstaDBListItem.FieldNameGetAsString(FieldName: string): string;
 var
   FItem: TAstaFieldItem;
-{$ifdef Delphi6AndUp}
   b: TBcd;
-{$endif}
 begin
   FItem := DBList.FFieldList.FieldItemFromFieldName(FieldName);
   if FItem = nil then
@@ -424,14 +406,12 @@ begin
       ftCurrency,
       ftBcd,
       ftDateTime:   Str(GetDouble(FItem.FFieldNumber - 1): 2: 2, Result);
-{$ifdef Delphi6AndUp}
     ftFmtBcd:
       begin
         b := GetFmtBcd(FItem.FFieldNumber - 1);
         Result := BcdToStr(b);
       end;
     ftTimeStamp:    raise Exception.Create('Not Implemented');
-{$endif}
   end;
 end;
 
@@ -445,9 +425,9 @@ begin
   spot := (Field div 32);
   FieldAddrInBuffer := GetNullBuffer;
   if not IsNull then
-    Setbit(PInteger(FieldAddrInBuffer)^[Spot], DBList.AdjustFieldNullOffset(Field))
+    Setbit(PIntegerArray(FieldAddrInBuffer)^[Spot], DBList.AdjustFieldNullOffset(Field))
   else
-    Clearbit(PInteger(FieldAddrInBuffer)^[Spot], DBList.AdjustFieldNullOffset(Field));
+    Clearbit(PIntegerArray(FieldAddrInBuffer)^[Spot], DBList.AdjustFieldNullOffset(Field));
 end;
 
 procedure TAstaDBListItem.PutDouble(Field: Integer; Value: Double; IsNull: Boolean);
@@ -462,7 +442,6 @@ begin
   SetNullFlag(Field, IsNull);
 end;
 
-{$ifdef Delphi6AndUp}
 procedure TAstaDBListItem.PutFmtBcd(Field: Integer; const Value: TBcd; IsNull: Boolean);
 begin
   BcdPtr(GetDataPointer(Field))^ := Value;
@@ -474,20 +453,32 @@ begin
   SQLTimeStampPtr(GetDataPointer(Field))^ := Value;
   SetNullFlag(Field, IsNull);
 end;
-{$endif}
 
 function TAstaDBListItem.GetString(Field: Integer): string;
 var
   A: AnsiString;
+  W: WideString;
+  L: Integer;
 begin
   if DBList.FFieldList.Items[Field].FFieldType = ftWideString then
-    Result := string(PWideChar(GetDataPointer(Field)))
+  begin
+    L := DBList.FieldSize(Field) div SizeOf(WideChar);
+    if L > 0 then
+      SetString(W, PWideChar(GetDataPointer(Field)), L)
+    else
+      W := '';
+    while (Length(W) > 0) and (W[Length(W)] = #0) do
+      SetLength(W, Length(W) - 1);
+    Result := string(W);
+  end
   else
   begin
     SetLength(A, DBList.FieldSize(Field));
     if Length(A) > 0 then
       Move(GetDataPointer(Field)^, PAnsiChar(A)^, DBList.FieldSize(Field));
-    Result := string(PAnsiChar(A));
+    while (Length(A) > 0) and (A[Length(A)] = #0) do
+      SetLength(A, Length(A) - 1);
+    Result := string(A);
   end;
 end;
 
@@ -503,8 +494,15 @@ begin
 end;
 
 function TAstaDBListItem.GetAnsiString(Field: Integer): string;
+var
+  A: AnsiString;
 begin
-  Result := string(PAnsiChar(GetDataPointer(Field)));
+  SetLength(A, DBList.FieldSize(Field));
+  if Length(A) > 0 then
+    Move(GetDataPointer(Field)^, PAnsiChar(A)^, DBList.FieldSize(Field));
+  while (Length(A) > 0) and (A[Length(A)] = #0) do
+    SetLength(A, Length(A) - 1);
+  Result := string(A);
 end;
 
 function TAstaDBListItem.GetPointer(Field: Integer): Pointer;
@@ -532,12 +530,10 @@ begin
   Result := CurrencyPtr(GetDataPointer(Field))^;
 end;
 
-{$ifdef Delphi6AndUp}
 function TAstaDBListItem.GetFmtBcd(Field: Integer): TBcd;
 begin
   Result := PBcd(GetDataPointer(Field))^;
 end;
-{$endif}
 constructor TAstaDBList.Create;
 begin
   inherited Create(TAstaDBListItem);
@@ -572,7 +568,7 @@ end;
 
 procedure TAstaDBList.SetCapacity(NewCapacity: Integer);
 begin
-  Capacity := NewCapacity;
+  //Capacity := NewCapacity;
 end;
 
 procedure TAstaDBList.AddField(FieldName: string; FieldType: TFieldType; StringSize: Integer; Precision :Integer);
@@ -650,7 +646,7 @@ var
 begin
   spot := (Field div 32);
   FieldAddrInBuffer := GetNullBufferFromBuffer(Buffer);
-  Result := not TestBit(PInteger(FieldAddrInBuffer)^[Spot], AdjustFieldNullOffset(Field));
+  Result := not TestBit(PIntegerArray(FieldAddrInBuffer)^[Spot], AdjustFieldNullOffset(Field));
 end;
 
 procedure TAstaDBList.SetNullFlagBuffer(Field: Integer; IsNull: Boolean; Buffer: Pointer);
@@ -662,24 +658,37 @@ begin
   spot := (Field div 32);
   FieldAddrInBuffer := GetNullBufferFromBuffer(Buffer);
   if not IsNull then
-    Setbit(PInteger(FieldAddrInBuffer)^[Spot], AdjustFieldNullOffset(Field))
+    Setbit(PIntegerArray(FieldAddrInBuffer)^[Spot], AdjustFieldNullOffset(Field))
   else
-    Clearbit(PInteger(FieldAddrInBuffer)^[Spot], AdjustFieldNullOffset(Field));
+    Clearbit(PIntegerArray(FieldAddrInBuffer)^[Spot], AdjustFieldNullOffset(Field));
 end;
 
 
 function TAstaDBList.GetbufferString(Buffer: Pointer; Field: Integer): string;
 var
   A: AnsiString;
+  W: WideString;
+  L: Integer;
 begin
   if FFieldList.Items[Field].FFieldType = ftWideString then
-    Result := string(PWideChar(GetBufferDataPointer(Buffer, Field)))
+  begin
+    L := FieldSize(Field) div SizeOf(WideChar);
+    if L > 0 then
+      SetString(W, PWideChar(GetBufferDataPointer(Buffer, Field)), L)
+    else
+      W := '';
+    while (Length(W) > 0) and (W[Length(W)] = #0) do
+      SetLength(W, Length(W) - 1);
+    Result := string(W);
+  end
   else
   begin
     SetLength(A, FieldSize(Field));
     if Length(A) > 0 then
       Move(GetBufferDataPointer(Buffer, Field)^, PAnsiChar(A)^, FieldSize(Field));
-    Result := string(PAnsiChar(A));
+    while (Length(A) > 0) and (A[Length(A)] = #0) do
+      SetLength(A, Length(A) - 1);
+    Result := string(A);
   end;
 end;
 
@@ -714,12 +723,10 @@ begin
   Result := CurrencyPtr(GetBufferDataPointer(Buffer, Field))^;
 end;
 
-{$ifdef Delphi6AndUp}
 function TAstaDBList.GetBufferFmtBcd(Buffer: Pointer; Field: Integer): TBcd;
 begin
   Result := PBcd(GetBufferDataPointer(Buffer, Field))^;
 end;
-{$endif}
 function TAstaDBList.GetLastBookMark: Integer;
 var
   i: Integer;
@@ -777,6 +784,7 @@ end;
 procedure TastaDBList.LoadFromStream(Stream: TStream);
 begin
   FFieldList.LoadFromStream(Stream);
+  FieldsDefined;
   inherited LoadFromStream(Stream);
 end;
 

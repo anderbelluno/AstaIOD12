@@ -965,7 +965,11 @@ end;
 
 function TAstaIOCustomClientDataSet.Reconcile: Boolean;
 var
+  {$IFDEF Delphi2009AndUp}
   bmk: TBookmark;
+  {$ELSE}
+  bmk: TBookmarkStr;
+  {$ENDIF}
   tempDS: TAstaIODataSet;
   prevUpdateMethod: TAstaUpdateMethod;
   E: Exception;
@@ -1267,7 +1271,11 @@ end;
 procedure TAstaIONestedDSManager.PrepareDataSetForUpdate(NestedDataSet :TAstaIOCustomClientDataSet);
 var BmInt :Integer;
     Delta :Integer;
+    {$IFDEF Delphi12AndUp}
     ParentBM :TBookmark;
+    {$ELSE}
+    ParentBM :TBookmarkStr;
+    {$ENDIF}
     ParentDataSetFieldDS: TAstaIOCustomDataset;
     NestedOldValues: TAstaIOCustomDataset;
     DeltaCurrentValues: TAstaIOCustomDataset;
@@ -1278,6 +1286,7 @@ var BmInt :Integer;
     i, j :Integer;
 
   function MoveParentToBookMarkFromDelta(DataSet :TAstaIOCustomDataset; BmInt :Integer): Boolean;
+  {$IFDEF Delphi12AndUp}
   var Bm :TBytes;
   begin
     SetLength(Bm, SizeOf(Integer));
@@ -1285,6 +1294,15 @@ var BmInt :Integer;
     DataSet.BookMark := Bm;
     result := True;
   end;
+  {$ELSE}
+  var Bm :string;
+  begin
+    SetLength(Bm, SizeOf(Integer));
+    move(BmInt, Bm[1], SizeOf(Integer));
+    DataSet.BookMark := Bm;
+    result := True;
+  end;
+  {$ENDIF}
 
 begin
   // We need to go to each "current" dataset and get the current values
