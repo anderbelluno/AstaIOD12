@@ -30,8 +30,10 @@ uses
   DB,
   SysUtils,
   Classes,
-  {$IFDEF WIN32}
-  Dialogs,
+   {$IFDEF FRAMEWORK_FMX }
+     FMX.Dialogs,
+   {$ELSE}
+  VCL.Dialogs,
   {$ENDIF}
  {$IFNDEF VER130}
   Variants,

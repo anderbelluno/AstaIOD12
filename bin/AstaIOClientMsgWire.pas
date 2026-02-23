@@ -35,11 +35,19 @@ uses Classes,
   {$ifdef AstaIOSmartWait}
   AstaIOSmartWait,
   {$endif}
-  ComCtrls,
-  Forms,
+  {$IFDEF FRAMEWORK_FMX }
+    FMX.Forms,
+    FMX.Controls,
+    FMX.Dialogs,
+  {$ELSE}
+    VCL.Forms,
+    VCL.ComCtrls,
+    VCL.Dialogs,
+  {$ENDIF}
+
   Windows,
   Messages,
-  Dialogs,
+
   {$ENDIF}
   AstaIOMessagePacker,
   SyncObjs,

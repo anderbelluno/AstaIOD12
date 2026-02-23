@@ -87,7 +87,11 @@ type
 
 implementation
 
-uses dialogs, winsock;
+uses    {$IFDEF FRAMEWORK_FMX }
+     FMX.Dialogs,
+   {$ELSE}
+  VCL.Dialogs,
+  {$ENDIF} winsock;
 
 const
   ASTA_END_REQUEST = WM_USER + 1;

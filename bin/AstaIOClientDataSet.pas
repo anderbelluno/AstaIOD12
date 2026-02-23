@@ -27,9 +27,11 @@ interface
 
 uses
   SysUtils, Classes, DB,
-  {$IFDEF WIN32}
-  Dialogs,
- {$ENDIF}
+   {$IFDEF FRAMEWORK_FMX }
+     FMX.Dialogs,
+   {$ELSE}
+  VCL.Dialogs,
+  {$ENDIF}
   AstaIOCustomDataSet, AstaIODBConst,
   AstaIOParamList,
   AstaIODataSetProvider,

@@ -57,12 +57,16 @@ implementation
 uses AstaIOServerWire,
      AstaIOUtil,
      AstaIOBits,
-     SysUtils
-     {$ifdef mswindows},
+     SysUtils,
      ShellAPI,
      Windows,
-     Forms
-     {$endif}
+     {$IFDEF FRAMEWORK_FMX }
+       FMX.Forms
+     {$ELSE}
+       VCL.Forms
+     {$ENDIF}
+
+
      ;
 
 Function TAstaIOAutoUpgrade.UpgradeInfoInteger(u:TAutoUpgradeResponse):Integer;

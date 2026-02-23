@@ -28,7 +28,12 @@ uses Classes,
   {$IFDEF LINUX}
   Libc,
   {$ELSE}
-  Windows, Dialogs,
+  Windows,
+  {$IFDEF FRAMEWORK_FMX }
+    FMX.Dialogs,
+  {$ELSE}
+    VCL.Dialogs,
+  {$ENDIF}
   {$ENDIF}
   Sysutils,
   AstaIOCustomDataSet,

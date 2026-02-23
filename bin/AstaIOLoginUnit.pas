@@ -24,7 +24,24 @@ uses
   QDialogs, QForms, QStdCtrls, QControls, QExtCtrls
 
 {$ELSE}
-  Forms, Dialogs, StdCtrls, Controls, ExtCtrls, Windows
+
+  {$IFDEF FRAMEWORK_FMX }
+    FMX.Forms,
+    FMX.Controls,
+    FMX.Dialogs,
+    FMX.StdCtrls,
+    FMX.ExtCtrls,
+    FMX.Edit,
+    FMX.ListBox,
+  {$ELSE}
+    VCL.Forms,
+    VCL.Controls,
+    VCL.Dialogs,
+    VCl.StdCtrls,
+    VCL.ExtCtrls,
+  {$ENDIF}
+
+   Windows, System.UITypes
 {$ENDIF}
 ;
 
@@ -32,7 +49,7 @@ type
   TAstaLoginDialog = class(TForm)
     OKBtn: TButton;
     CancelBtn: TButton;
-    Bevel1: TBevel;
+    Bevel1: {$IFDEF FRAMEWORK_FMX} TPanel{$ELSE} TBevel{$ENDIF};
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -58,6 +75,7 @@ uses AstaIOResources;
 function AstaIOLogin(var UserName, Password, IPAddress: string; var Port: Word): Boolean;
 var
   AstaIOLoginDialog: TAstaLoginDialog;
+  LIndex : Integer;
 begin
   result := False;
   AstaIOLoginDialog := TAstaLoginDialog.Create(nil);
@@ -66,7 +84,8 @@ begin
     begin
       EditUserName.Text := UserName;
       EditPassword.Text := Password;
-      EditServer.Text := IPAddress;
+      LIndex :=  EditServer.Items.IndexOf(IPAddress);
+      EditServer.ItemIndex := LIndex;
       EditPort.text := IntToStr(Port);
       ShowModal;
       if ModalResult = mrok then

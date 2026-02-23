@@ -23,7 +23,15 @@ unit AstaIOLowCore;
 
 interface
 uses Classes, SyncObjs, SysUtils, AstaIOMessagePacker,
- Windows, Dialogs, AstaIOWinBase, Winsock, Forms
+ Windows, AstaIOWinBase, Winsock,
+ {$IFDEF FRAMEWORK_FMX }
+   FMX.Dialogs,
+   FMX.Forms
+ {$ELSE}
+   VCL.Dialogs,
+   VCL.Forms
+ {$ENDIF}
+
   {$ifdef LowCoreCOM}
    ,ActiveX
   {$endif};

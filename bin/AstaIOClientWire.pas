@@ -32,7 +32,11 @@ uses Classes,
 {$IFDEF LINUX}
   AstaIOLinuxMsgQueue,
 {$ELSE}
-  Dialogs,
+     {$IFDEF FRAMEWORK_FMX }
+     FMX.Dialogs,
+   {$ELSE}
+  VCL.Dialogs,
+  {$ENDIF}
   Windows,
   Messages,
 {$ENDIF}

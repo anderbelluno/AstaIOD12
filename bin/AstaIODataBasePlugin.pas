@@ -30,8 +30,10 @@ interface
 
 uses Classes,
   DB,
-  {$IFNDEF LINUX}
-  Dialogs,
+   {$IFDEF FRAMEWORK_FMX }
+     FMX.Dialogs,
+   {$ELSE}
+  VCL.Dialogs,
   {$ENDIF}
   AstaIOConst,
   AstaIOParamList,

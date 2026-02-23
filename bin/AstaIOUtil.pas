@@ -27,7 +27,15 @@ unit AstaIOUtil;
 interface
 
 uses Classes, SysUtils, IniFiles,
-     Controls, Registry, Windows, ShellAPI, winSock, Forms,
+   {$IFDEF FRAMEWORK_FMX }
+     FMX.Controls,
+     FMX.Forms,
+   {$ELSE}
+   VCL.Controls,
+   VCL.Forms,
+  {$ENDIF}
+
+      Registry, Windows, ShellAPI, winSock,
      FMTBcd, SqlTimSt, DB, DateUtils;
 
 const

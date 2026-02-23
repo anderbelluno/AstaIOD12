@@ -29,7 +29,12 @@ uses
   {$IFDEF LINUX}
   AstaIOLinuxBase, Libc,
   {$ELSE}
-  WinSock, Dialogs, Windows, AstaIOWinBase,
+  {$IFDEF FRAMEWORK_FMX }
+    FMX.Dialogs,
+  {$ELSE}
+    VCL.Dialogs,
+  {$ENDIF}
+  WinSock,  Windows, AstaIOWinBase,
   {$ENDIF}
   AstaIONativeClientMsg,AstaIOClientWire,AstaIOClientMsgWire,
   AstaIOLowCore;
