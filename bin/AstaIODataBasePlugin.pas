@@ -154,7 +154,7 @@ type
     Function IsPersistentSession(U: TUserRecord):Boolean;
     Function Bladerunnercheck(U: TUserRecord; DataBaseStr, ServerMethodName:String;Params:TAstaParamList):Boolean;
     function DoExecProcEvent(U: TUserRecord; ADataSet: TComponent; DataBaseStr, StoredProcNm: string; var Params: TParams; var ExecResult :Integer): Boolean;
-    function DoSubmitSQLEvent(U: TUserRecord; ADataSet: TDataSet; DataBaseStr, SQLString: string; Params: TParams; RowsToReturn: Integer;Var ErrorMsg:String;SendResponseToClient:Boolean=true): Boolean;overload;
+    function DoSubmitSQLEvent(U: TUserRecord; ADataSet: TDataSet; DataBaseStr, SQLString: string; Params: TParams; RowsToReturn: Integer;Var ErrorMsg:AnsiString;SendResponseToClient:Boolean=true): Boolean;overload;
     function DoSubmitSQLEvent(U: TUserRecord; ADataSet: TDataSet; DataBaseStr, SQLString: string; Params: TParams; RowsToReturn: Integer;SendResponseToClient:Boolean=true): Boolean;overload;
     function DoSubmitSProcEvent(U: TUserRecord; ADataSet: TDataSet; DataBaseStr, StoredProcNm: string; var Params: TParams; RowsToReturn: Integer): Boolean;
     function DoMetaDataEvent(U: TUserRecord; var MetaDataDataSet: TDataSet; DataBaseStr: string; ObjectName: string; MetaDataRequest: TAstaMetaData): Boolean;
@@ -613,13 +613,13 @@ end;
 function TAstaIODataBasePlugin.DoSubmitSQLEvent(U: TUserRecord; ADataSet: TDataSet;
   DataBaseStr, SQLString: string; Params: TParams; RowsToReturn: Integer;SendResponseToClient:Boolean=True): Boolean;
 var
-ErrorMsg:String;
+ErrorMsg:AnsiString;
 begin
  result:=DoSubmitSQLEvent(U,ADataSet,DataBaseStr, SQLString,Params,RowsToReturn,ErrorMsg,SendResponseToClient);
 end;
 
 function TAstaIODataBasePlugin.DoSubmitSQLEvent(U: TUserRecord; ADataSet: TDataSet;
-  DataBaseStr, SQLString: string; Params: TParams; RowsToReturn: Integer;Var ErrorMsg:String;SendResponseToClient:Boolean=True): Boolean;
+  DataBaseStr, SQLString: string; Params: TParams; RowsToReturn: Integer;Var ErrorMsg:AnsiString;SendResponseToClient:Boolean=True): Boolean;
 
   begin
   result := False;

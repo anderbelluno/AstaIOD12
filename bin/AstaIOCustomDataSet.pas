@@ -381,6 +381,9 @@ type
     property BlobList: TAstaBlobList read FBlobList write FBlobList;
     function GetFieldData(Field: TField; Buffer: Pointer): Boolean; overload; override;
     function GetFieldData(Field: TField; var Buffer: TValueBuffer): Boolean; overload; override;
+    {$IF CompilerVersion >= 33.0}
+    procedure SetFieldData(Field: TField; Buffer: TValueBuffer); overload; override;
+    {$IFEND}
     function BookmarkValid(Bookmark: TBookmark): Boolean; override;
     procedure DisposeAstaList;
     function FilterCount: integer;
@@ -2102,6 +2105,17 @@ begin
   else
     Ptr := nil;
   Result := GetFieldData(Field, Ptr);
+end;
+
+procedure TAstaIOCustomDataset.SetFieldData(Field: TField; Buffer: TValueBuffer);
+var
+  Ptr: Pointer;
+begin
+  if Length(Buffer) > 0 then
+    Ptr := @Buffer[0]
+  else
+    Ptr := nil;
+  SetFieldData(Field, Ptr);
 end;
 {$IFEND}
 
