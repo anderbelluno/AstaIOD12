@@ -121,7 +121,7 @@ type
     procedure OpenCursor(InfoQuery: Boolean = False); override;
     procedure CheckParentDataSet; virtual;
     procedure LoadDataFromParentDataSet; virtual;
-    procedure DataEvent(Event: TDataEvent; Info: Integer); override;
+    procedure DataEvent(Event: TDataEvent; Info: NativeInt); override;
     function GetContentDefined: Boolean; virtual;
     procedure PostDataToParentDataSet; override;
     procedure PushRowData(Value: TDeltaType); override;
@@ -404,7 +404,7 @@ begin
 end;
 
 // Nested DataSet
-procedure TAstaIOCustomClientDataSet.DataEvent(Event: TDataEvent; Info: Integer);
+procedure TAstaIOCustomClientDataSet.DataEvent(Event: TDataEvent; Info: NativeInt);
 begin
   if InBatch then exit;
   if (Event = deParentScroll) and not Assigned(Provider) and ParentDataSet.Active then

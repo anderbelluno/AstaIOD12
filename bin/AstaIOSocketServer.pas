@@ -47,7 +47,7 @@ type
     procedure SocketClientDisconnect(Sender: TObject; AstaSocket: TAstaSocket);
     Procedure  SocketError(S: TAstaSocket; ErrorCode:Integer);
     procedure GetSocket(Sender: TObject; var AstaSocket: TAstaSocket;
-      S: Integer; var Addr: sockaddr_in);
+      S: TSocket; var Addr: sockaddr_in);
     {$ifdef OneAddress}
     //procedure SetAstaServer(Value: TAstaSocketServer);
     {$endif}
@@ -311,7 +311,7 @@ begin
 end;
 
 procedure TAstaIOSocketServerWire.GetSocket(Sender: TObject;
-  var AstaSocket: TAstaSocket; S: Integer; var Addr: sockaddr_in);
+  var AstaSocket: TAstaSocket; S: TSocket; var Addr: sockaddr_in);
 begin
   AstaSocket := TStitchSocket.Create(S, Addr);
 end;

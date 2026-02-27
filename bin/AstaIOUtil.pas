@@ -212,11 +212,8 @@ begin
 end;
 
 function iMax(const I, J: Integer): Integer;
-asm
-  Cmp   EAX,EDX
-  Jge   @Exit
-  Mov   EAX,EDX
-@Exit:
+begin
+  if I > J then Result := I else Result := J;
 end;
 
 procedure TomCat(const S: AnsiString; var D: AnsiString; var InUse: Integer);
@@ -259,69 +256,52 @@ begin
 end;
 
 function ScanF(const Source, Search: AnsiString; Start: Integer): Integer;
-
-  {Forward scan from specified Start looking for Search key.  Search may
-   contain any number of '?' wildcards to match any character.
-   Supports case insensitive using negative Start.
-
-   Returns:  position where/if found; otherwise, 0}
-
-  //EFD961007
+{$IFDEF CPU386}
 asm
-
-    Push  EBX              //save the important stuff
+    Push  EBX
     Push  ESI
     Push  EDI
     Push  EBP
-
-    Or    EAX,EAX          //zero source ?
+    Or    EAX,EAX
     Jz    @NotFound
-    Or    EDX,EDX          //zero search ?
-    Jz    @NotFound
-    Jecxz @NotFound        //zero start ?
-
-    Mov   ESI,EAX          //source address
-    Mov   EBP,EAX          //save it in EBP
-    Mov   EDI,EDX          //search address
-
-    Mov   EAX,ECX
-    Or    ECX,ECX          //case sensitive ?
-    Jns   @L0              //yes, then skip
-    Neg   ECX              //absolute value of ECX
-@L0:
-    Dec   ECX              //zero based start position
-    Js    @NotFound
-    Mov   EDX,[ESI-4]      //source length
     Or    EDX,EDX
-    Jz    @NotFound        //abort on null string
-    Sub   EDX,ECX          //consider only remaining of source
-    Jbe   @NotFound        //abort if source is too short
-    Add   ESI,ECX          //start at the given offset
-
-    Mov   ECX,[EDI-4]      //search length
-    Jecxz @NotFound        //abort on null string
-    Sub   EDX,ECX          //no need to examine any trailing
-    Jb    @NotFound        //abort if source is too short
+    Jz    @NotFound
+    Jecxz @NotFound
+    Mov   ESI,EAX
+    Mov   EBP,EAX
+    Mov   EDI,EDX
+    Mov   EAX,ECX
+    Or    ECX,ECX
+    Jns   @L0
+    Neg   ECX
+@L0:
+    Dec   ECX
+    Js    @NotFound
+    Mov   EDX,[ESI-4]
+    Or    EDX,EDX
+    Jz    @NotFound
+    Sub   EDX,ECX
+    Jbe   @NotFound
+    Add   ESI,ECX
+    Mov   ECX,[EDI-4]
+    Jecxz @NotFound
+    Sub   EDX,ECX
+    Jb    @NotFound
     Inc   EDX
-    Xor   EBX,EBX          //use EBX as temporary offset
+    Xor   EBX,EBX
     XChg  EDX,ECX
 @Next:
-    Cmp   EBX,EDX          //end of search ?
-    Jz    @Found           //yes, we found it!
-
-    Mov   AL,[ESI+EBX]     //get next character from source
-    Mov   AH,[EDI+EBX]     //get next character from search
-    Inc   EBX              //next offset
-
-    Cmp   AH,63            //wildcard ?
-    Jz    @Next            //yes, then check next char.
-
-    Cmp   AL,AH            //match ?
-    Jz    @Next            //yes, then check next char.
-
-    Or    EAX,EAX          //case insensitive ?
-    Jns   @L1              //no, then skip; otherwise, reverse case
-
+    Cmp   EBX,EDX
+    Jz    @Found
+    Mov   AL,[ESI+EBX]
+    Mov   AH,[EDI+EBX]
+    Inc   EBX
+    Cmp   AH,63
+    Jz    @Next
+    Cmp   AL,AH
+    Jz    @Next
+    Or    EAX,EAX
+    Jns   @L1
     Cmp   AH,122
     Ja    @L1
     Cmp   AL,65
@@ -329,31 +309,70 @@ asm
     Cmp   AL,122
     Ja    @L1
     Xor   AL,32
-
-    Cmp   AL,AH            //check it again ?
-    Jz    @Next            //yes, then check next char.
+    Cmp   AL,AH
+    Jz    @Next
 @L1:
-    Inc   ESI              //no, then move to next character in source
-    Xor   EBX,EBX          //zero offset
-    Loop  @Next            //try it again
-
+    Inc   ESI
+    Xor   EBX,EBX
+    Loop  @Next
 @NotFound:
-    Xor   EAX,EAX          //clear return
+    Xor   EAX,EAX
     Jmp   @Exit
-
 @Found:
-    Sub   ESI,EBP          //calc offset
+    Sub   ESI,EBP
     Mov   EAX,ESI
     Inc   EAX
-
 @Exit:
-
-    Pop   EBP              //restore the world
+    Pop   EBP
     Pop   EDI
     Pop   ESI
     Pop   EBX
-
 end;
+{$ELSE}
+var
+  i, j, n, m, pos, startAbs: Integer;
+  insensitive: Boolean;
+  chS, chP: AnsiChar;
+  match: Boolean;
+begin
+  Result := 0;
+  if (Length(Source) = 0) or (Length(Search) = 0) or (Start = 0) then Exit;
+  insensitive := Start < 0;
+  startAbs := Start;
+  if startAbs < 0 then startAbs := -startAbs;
+  pos := startAbs;
+  n := Length(Source);
+  m := Length(Search);
+  if (pos < 1) or (pos > n) or (m = 0) or (n - pos + 1 < m) then Exit;
+  for i := pos to n - m + 1 do
+  begin
+    match := True;
+    for j := 1 to m do
+    begin
+      chS := Source[i + j - 1];
+      chP := Search[j];
+      if chP <> '?' then
+      begin
+        if insensitive then
+        begin
+          if (chS >= 'a') and (chS <= 'z') then Dec(Byte(chS), 32);
+          if (chP >= 'a') and (chP <= 'z') then Dec(Byte(chP), 32);
+        end;
+        if chS <> chP then
+        begin
+          match := False;
+          Break;
+        end;
+      end;
+    end;
+    if match then
+    begin
+      Result := i;
+      Exit;
+    end;
+  end;
+end;
+{$ENDIF}
 
 procedure ReplaceS(var Source: AnsiString; const Target, Replace: Ansistring);
 
@@ -1080,11 +1099,8 @@ begin
 end;
 
 function Min(X, Y: Integer): Integer;
-asm
-  Cmp Eax, Edx
-  Jle @Exit
- Mov Eax, Edx
-@Exit:
+begin
+  if X < Y then Result := X else Result := Y;
 end;
 
 function GetPropValue(Instance: TPersistent; PropName: string): string; overload;

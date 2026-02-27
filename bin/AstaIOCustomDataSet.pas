@@ -315,7 +315,7 @@ type
     property SuspendEvents: Boolean read FSuspendEvents write FSuspendEvents;
     procedure DoAfterOpen; override;
     procedure DoAfterClose; override;
-    procedure DataEvent(Event: TDataEvent; Info: Integer); override;
+    procedure DataEvent(Event: TDataEvent; Info: NativeInt); override;
     procedure PostDataToParentDataSet; virtual;
     function IsMasterActive(DataSource: TDataSource): Boolean;
     // Master/Detail fields
@@ -4811,7 +4811,7 @@ begin
   Result := FConstDisableCount > 0;
 end;
 
-procedure TAstaIOCustomDataset.DataEvent(Event: TDataEvent; Info: Integer);
+procedure TAstaIOCustomDataset.DataEvent(Event: TDataEvent; Info: NativeInt);
 var
   i: Integer;
 begin

@@ -933,7 +933,7 @@ begin
   FDataType := ftBlob;
   p := Source;
   SetLength(FData, sizeof(TObject));
-  move(Integer(p), FData[1], Sizeof(Pointer));
+  move(p, FData[1], Sizeof(Pointer));
   FNull := False;
 end;
 
@@ -952,13 +952,23 @@ begin
 end;
 
 function TAstaParamItem.GetAsDispatch: Pointer;
+var
+  I64: Int64;
+  E: Integer;
 begin
-  Result := Pointer(Self.AsInteger);
+  if DataType = ftIDispatch then begin
+    Val(string(FData), I64, E);
+    if E = 0 then
+      Result := Pointer(NativeInt(I64))
+    else
+      Result := nil;
+  end else
+    Result := Pointer(NativeInt(Self.AsLargeInt));
 end;
 
 procedure TAstaParamItem.SetAsDispatch(Value: Pointer);
 begin
-  Self.AsInteger := Integer(Value);
+  Self.AsLargeInt := NativeInt(Value);
 {$IFDEF Delphi5AndUp}
   FDataType := ftIDispatch;
 {$ENDIF}

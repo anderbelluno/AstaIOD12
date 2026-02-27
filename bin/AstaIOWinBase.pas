@@ -34,7 +34,7 @@ type
   TAstaSocket = class (TObject)
   protected
     FData:Pointer;
-    FSocket: Integer;
+    FSocket: IntPtr;
     FRemotePort: Word;
     FRemoteAddr: TSockAddrIn;
     //added by DB 28 Nov 2001
