@@ -442,7 +442,7 @@ begin
       finally
         m.Free;
       end;
-      TAstaIOCustomDatasetHack(ParentDataSet).DataEvent(deFieldChange, Longint(DataSetField));
+      TAstaIOCustomDatasetHack(ParentDataSet).DataEvent(deFieldChange, NativeInt(Pointer(DataSetField)));
     finally
       ChangesSaved;
       EnableControls;

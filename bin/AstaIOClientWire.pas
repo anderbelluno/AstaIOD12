@@ -297,8 +297,8 @@ var
     if (UpgradeInfo = 0) or NoMessagePump then
       exit;
 {$IFDEF WindowsMessageEvents}
-    PostMessage(Self.Handle, WM_Upgrade, UpgradeInfo,
-      integer(UpgradeParamList));
+    PostMessage(Self.Handle, WM_Upgrade, WPARAM(UpgradeInfo),
+      LPARAM(UpgradeParamList));
 {$ENDIF}
   end;
   procedure LocalLogin;
@@ -329,7 +329,7 @@ begin
     LocalLogin
   else
   begin
-    PostMessage(Self.Handle, WM_Login, ord(Verified), integer(P));
+    PostMessage(Self.Handle, WM_Login, WPARAM(Ord(Verified)), LPARAM(P));
     DoUpgradeAction;
   end;
 {$ELSE}
@@ -350,9 +350,9 @@ begin
     d := FDataSetList.ComponentFromDataSetid(DataSetid);
     if d <> nil then
     begin
-      PostMessage(Self.Handle, WM_ProviderBroadCast, Integer(d), integer(P));
+      PostMessage(Self.Handle, WM_ProviderBroadCast, WPARAM(d), LPARAM(P));
       if p1.count > 0 then
-        PostMessage(Self.Handle, WM_ProviderParamList, Integer(d), integer(P1));
+        PostMessage(Self.Handle, WM_ProviderParamList, WPARAM(d), LPARAM(P1));
     end;
     //      then TAstaParamsDataSet(d).ReceiveProviderBroadCast(self, P[0].AsString);
   finally
@@ -718,7 +718,7 @@ begin
     if NoMessagePump then
       OnConnect(Self)
     else
-      PostMessage(Self.Handle, WM_Connect, 0, integer(Self));
+      PostMessage(Self.Handle, WM_Connect, 0, LPARAM(Self));
 {$ELSE}
 {$IFDEF LinuxMessageQueue}
     MessageQueue.Add(MessageProc, Self, WM_CONNECT, 0, Integer(Self));
@@ -834,6 +834,8 @@ var
   AParam: TAstaParamItem;
   DeleteFromServer: Boolean;
 begin
+  if Params = nil then
+    Exit;
   AParam := Params.FindParam('~WaitingMail');
   if AParam = nil then
     exit;
@@ -914,9 +916,9 @@ begin
         if assigned(FOnCodedParamList) or (message.wParam = atFileSegmentSend)
           then
         begin
-          ParamList := TAstaParamList(Message.LParam);
+          ParamList := TAstaParamList(Pointer(Message.LParam));
 {$IFDEF ServerSegmentSends}
-          if Message.WParam = ATFileSegmentSend then
+          if Integer(Message.WParam) = ATFileSegmentSend then
             DoReceiveFileSegment(ParamList);
 {$ENDIF}
           try
@@ -931,7 +933,7 @@ begin
       begin
         Handled := True;
         Verified := Message.WParam = 1;
-        ParamList := TAstaParamList(Message.LParam);
+        ParamList := TAstaParamList(Pointer(Message.LParam));
         if Verified then
           DoProcessWaitingMail(ParamList);
         try
@@ -943,9 +945,9 @@ begin
     WM_Upgrade:
       begin
         Handled := True;
-        ParamList := TAstaParamList(Message.LParam);
+        ParamList := TAstaParamList(Pointer(Message.LParam));
         try
-          DoAutoUpgrade(Message.WParam, ParamList);
+          DoAutoUpgrade(Integer(Message.WParam), ParamList);
         finally
           ParamList.Free;
         end;
@@ -953,9 +955,9 @@ begin
     WM_ProviderBroadCast:
       begin
         handled := True;
-        ParamList := TAstaParamList(Message.LParam);
+        ParamList := TAstaParamList(Pointer(Message.LParam));
         try
-          TAstaParamsDataSet(Message.WParam).ReceiveProviderBroadCast(self,
+          TAstaParamsDataSet(Pointer(Message.WParam)).ReceiveProviderBroadCast(self,
             ParamList[0].AsString);
         finally
           ParamList.free;
@@ -964,9 +966,9 @@ begin
     WM_ProviderParamList:
       begin
         handled := True;
-        ParamList := TAstaParamList(Message.LParam);
+        ParamList := TAstaParamList(Pointer(Message.LParam));
         try
-          TAstaParamsDataSet(Message.WParam).ReceiveProviderBroadCastParams(self, ParamList);
+          TAstaParamsDataSet(Pointer(Message.WParam)).ReceiveProviderBroadCastParams(self, ParamList);
         finally
           ParamList.free;
         end;
@@ -1052,8 +1054,8 @@ begin
   if NoMessagePump then
     LocalDoParamList
   else
-    PostMessage(Self.Handle, WM_Coded_ParamList, Reader.ReadInteger(0),
-      integer(Params));
+    PostMessage(Self.Handle, WM_Coded_ParamList, WPARAM(Reader.ReadInteger(0)),
+      LPARAM(Params));
 {$ELSE}
 {$IFDEF LinuxMessageQueue}
   MessageQueue.Add(MessageProc, Self, WM_CODED_PARAMLIST,

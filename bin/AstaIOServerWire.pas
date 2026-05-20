@@ -1665,9 +1665,17 @@ end;
 
 procedure TCustomAstaServerWire.UpdateVisualUserList(U: TUserRecord; IsConnect: Boolean);
 begin
-  if not Assigned(FVisualUserList) then exit;
-  if isConnect then FVisualUserList.addObject(RemoteAddressAndPort(U.TheClient), U)
-  else FVisualUserList.Delete(FVisualUserList.IndexofObject(u));
+  if not Assigned(FVisualUserList) then
+    Exit;
+  try
+    if IsConnect then
+      FVisualUserList.AddObject(RemoteAddressAndPort(U.TheClient), U)
+    else
+      FVisualUserList.Delete(FVisualUserList.IndexOfObject(U));
+  except
+    on E: EInvalidOperation do
+      FVisualUserList := nil;
+  end;
 end;
 
 procedure TCustomAstaServerWire.DoUserListchange(U: TUserRecord; Action: TUserRecordState);
@@ -2286,9 +2294,16 @@ begin
   try
     FBlockUsers:=False;
     FLogClientList.Clear;
-    if (not Value) then begin
-    if Assigned(FVisualUserList) then FVisualUserList.Clear;
-    UserList.Clear;
+    if not Value then
+    begin
+      try
+        if Assigned(FVisualUserList) then
+          FVisualUserList.Clear;
+      except
+        on E: EInvalidOperation do
+          FVisualUserList := nil;
+      end;
+      UserList.Clear;
     end;
   except
   end;

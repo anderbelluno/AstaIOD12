@@ -320,8 +320,9 @@ begin
       m.write(msg.FSize, Sizeof(Integer));
     end;
     FData.SetSize(FSize);
-    System.Move(FData.Memory^, Pointer(Longint(FDAta.Memory) + FHeaderSize)^, FSize - FHeaderSize);
-    System.Move(m.Memory^, Pointer(FData.Memory)^, FHeaderSize);
+    { Win64: never truncate pointers with Longint }
+    System.Move(FData.Memory^, (PByte(FData.Memory) + FHeaderSize)^, FSize - FHeaderSize);
+    System.Move(m.Memory^, FData.Memory^, FHeaderSize);
   finally
     m.free;
   end;

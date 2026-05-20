@@ -2162,7 +2162,7 @@ begin
       Move(Buffer^, Pc^, Field.DataSize);
     end;
     if not FDirectWrite and not (State in [dsCalcFields, dsFilter, dsNewValue]) then
-      DataEvent(deFieldChange, Longint(Field)); // Causes InternalPost
+      DataEvent(deFieldChange, NativeInt(Pointer(Field))); // Causes InternalPost
     Exit;
   end;
 
@@ -2195,7 +2195,7 @@ begin
     SetChangedFlag(Field, not IsNull, DestinationBuffer);
 
   if not FDirectWrite and not (State in [dsCalcFields, dsFilter, dsNewValue]) then
-    DataEvent(deFieldChange, Longint(Field));
+    DataEvent(deFieldChange, NativeInt(Pointer(Field)));
 end;
 
 procedure TAstaIOCustomDataset.SetFieldDataNoDataEvent(Field: TField; Buffer: Pointer);
@@ -2503,7 +2503,7 @@ begin
     FDataSet.StoreMemoryStream(FField, Self);
     FField.Modified := True;
     FModified := False;
-    FDataSet.DataEvent(deFieldChange, Longint(FField));
+    FDataSet.DataEvent(deFieldChange, NativeInt(Pointer(FField)));
   except
     // changed by AI, 24 Nov 2001
     {$IFDEF Delphi6AndUP}
@@ -4814,11 +4814,15 @@ end;
 procedure TAstaIOCustomDataset.DataEvent(Event: TDataEvent; Info: NativeInt);
 var
   i: Integer;
+  F: TField;
 begin
-  if Event = deFieldChange then
-    if (TField(Info).FieldKind = fkCalculated) and TField(Info).IsIndexField and
-       (State = dsSetKey) then
+  { Info is a TField pointer; use NativeUInt to avoid sign-extension on Win64 }
+  if (Event = deFieldChange) and (Info <> 0) then
+  begin
+    F := TField(Pointer(NativeUInt(Info)));
+    if (F.FieldKind = fkCalculated) and F.IsIndexField and (State = dsSetKey) then
       SetModified(True);
+  end;
   inherited DataEvent(Event, Info);
   if Event = deCheckBrowseMode then
     for i := 0 to NestedDataSets.Count - 1 do

@@ -359,7 +359,7 @@ L:TStringList;
 begin
  case Message.msg of
   WM_Coded_Msg:begin
-                l:=TStringList(Message.Lparam);
+                l:=TStringList(Pointer(Message.LParam));
                 try
                 if assigned(FOnCodedMessage) then
                  FOnCodedMessage(Self, Message.WParam,l[0]);
@@ -369,8 +369,8 @@ begin
                 end;
   WM_Coded_Stream:if assigned(FOnCodedStream) then begin
                   Handled:=True;
-                  FOnCodedStream(Self, Message.WParam,TMemoryStream(Message.LParam));
-                  TMemoryStream(Message.LParam).Free;
+                  FOnCodedStream(Self, Integer(Message.WParam), TMemoryStream(Pointer(Message.LParam)));
+                  TMemoryStream(Pointer(Message.LParam)).Free;
                 end;
   WM_Disconnect  :if Assigned(FOnDisconnect) then FOnDisconnect(Self);
   WM_Connect  :   begin
@@ -857,7 +857,7 @@ begin
   end else begin
     L := TStringList.Create;
     L.Add(msg);
-    PostMessage(Self.Handle, WM_Coded_Msg, Msgid, integer(L));
+    PostMessage(Self.Handle, WM_Coded_Msg, WPARAM(Msgid), LPARAM(L));
   end;
   {$ELSE}
     // added by AI, 29 Nov 2001
@@ -919,7 +919,7 @@ begin
   if NoMessagePump then exit; 
   if FHandleList<>nil then
    for i:=0 to FHandleList.Count-1 do
-   PostMessage(Integer(FHandleList[i]), WM_Status_Bar, 0, integer(StatusBarMessage));
+   PostMessage(HWND(FHandleList[i]), WM_Status_Bar, 0, LPARAM(StatusBarMessage));
   {$ELSE}
   {$IFDEF LinuxMessageQueue}
   MessageQueue.Add(MessageProc, Self, WM_Status_Bar, 0, StatusBarMessage);
@@ -958,7 +958,7 @@ begin
   if Assigned(FOnConnect) then
   {$IFDEF WindowsMessageEvents}
    if NoMessagePump then FOnConnect(Self) else
-    PostMessage(FHandle, WM_Connect, 0,integer(Self));
+    PostMessage(FHandle, WM_Connect, 0, LPARAM(Self));
   {$ELSE}
     {$IFDEF LinuxMessageQueue}
       MessageQueue.Add(MessageProc, Self, WM_CONNECT, 0, Integer(Self));
@@ -1083,7 +1083,7 @@ begin
   try
     {$IFDEF WindowsMessageEvents}
     if NoMessagePump then FOnDisconnect(self) else
-    PostMessage(Self.Handle, WM_Disconnect, 0,integer(Self));
+    PostMessage(Self.Handle, WM_Disconnect, 0, LPARAM(Self));
     {$ELSE}
       {$IFDEF LinuxMessageQueue}
       MessageQueue.Add(MessageProc, Self, WM_DISCONNECT, 0, Integer(Self));
@@ -1111,7 +1111,7 @@ begin
   if NoMessagePump then begin
    if Assigned(FOnCodedStream) then FOnCodedStream(Self, Msgid, Ms);
     MS.Free;
-  end else  PostMessage(Self.Handle, WM_Coded_Stream, Msgid, integer(MS));
+  end else  PostMessage(Self.Handle, WM_Coded_Stream, WPARAM(Msgid), LPARAM(MS));
   {$ELSE}
     {$IFDEF LinuxMessageQueue}
     MessageQueue.Add(MessageProc, Self, WM_CODED_STREAM, MsgID, Integer(MS));
