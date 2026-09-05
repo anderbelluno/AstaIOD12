@@ -1071,6 +1071,9 @@ begin
 {$ifndef WideStrChange}
     varOleStr,
 {$endif}
+{$ifdef Delphi2009AndUp}
+    varUString,
+{$endif}
     varString:    AsString := Value;
 {$ifdef WideStrChange}
     varOleStr:    AsString := AstaWideStrString(Value, False);
@@ -1211,7 +1214,10 @@ begin
           on Exception do Result:=Null;
         end;
       end;
-    varString, varOleStr :
+    varString, varOleStr
+{$ifdef Delphi2009AndUp}
+    , varUString
+{$endif}:
       Result:=ST;
     else Result := Null;
   end;
@@ -1636,7 +1642,7 @@ begin
         if DataType=ftVariant then
         begin
           W:=VarType(FVariant);
-          NewData:=chr(W div 256)+chr(W mod 256)+FData;
+          NewData:=AnsiChar(W div 256)+AnsiChar(W mod 256)+FData;
         end
         else
           NewData:=FData;
@@ -2014,6 +2020,10 @@ begin
         vtExtended: T.AsFloat := VExtended^;
         vtString: T.AsString := VString^;
         vtAnsiString: T.AsString := string(VAnsiString);
+{$ifdef Delphi2009AndUp}
+        vtUnicodeString: T.AsString := AnsiString(UnicodeString(VUnicodeString));
+        vtWideString: T.AsString := AnsiString(WideString(VWideString));
+{$endif}
       end;
   end;
 end;

@@ -698,7 +698,9 @@ begin
    try
     FClientWire.Active := True;
     except
-     if not (csloading in componentstate) then  Raise EAstaDataSetException.Create(SNotConnected);
+     on E: Exception do
+       if not (csloading in componentstate) then
+         Raise EAstaDataSetException.Create(SNotConnected + sLineBreak + E.ClassName + ': ' + E.Message);
     end;
   end;
 end;
@@ -991,6 +993,7 @@ procedure TAstaClientRemoteDataSet.InternalOpen;
 var
   RaiseIt: Boolean;
   prevActive: Boolean;
+  WireIsUp: Boolean;
 begin
   prevActive := Indexes.Active;
   Indexes.Active := False;
@@ -1012,14 +1015,20 @@ begin
     end;
     FOpenQueryOnServer:=False;
     if FOpenOptions<>trNoFetch then DisposeAstaList;
-    if (FOpenOptions=trServer) and not Connected and not (csDesigning in ComponentState) then begin
+    WireIsUp := Assigned(FClientWire) and FClientWire.Active;
+    { D7 form load opens the query while csLoading, so Connected = Wire.Active
+      and InternalFetchData runs. At runtime Connected = Authenticated, which
+      is set later on the socket thread. If the wire is already up, fetch now
+      (SendStringGetReader blocks) — same as D7 load. }
+    if (FOpenOptions=trServer) and not Connected and not WireIsUp
+       and not (csDesigning in ComponentState) then begin
        FClientWire.AddToDesignTimeOpenList(Self);
        Raiseit:=False;
     end;
     if FOpenOptions<>trServer then begin
       RaiseIt:=False;
     end
-    else if Connected then
+    else if Connected or WireIsUp then
     begin
       if FOpenOptions=trServer then
       begin

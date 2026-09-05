@@ -119,8 +119,8 @@ type
     
     procedure SetRemoteHost(Value: String);
     function  GetRemoteHost: String;
-    procedure SetRemotePort(Value: SmallInt);
-    function  GetRemotePort: SmallInt;
+    procedure SetRemotePort(Value: Word);
+    function  GetRemotePort: Word;
     procedure SetRemoteAddr(Value: String);
     function  GetRemoteAddr: String;
   public
@@ -129,7 +129,7 @@ type
     procedure Connect;
     procedure Disconnect(Force: boolean = False);
     property RemoteHost: String read GetRemoteHost write SetRemoteHost;
-    property RemotePort: SmallInt read GetRemotePort write SetRemotePort;
+    property RemotePort: Word read GetRemotePort write SetRemotePort;
     property RemoteAddr: String read GetRemoteAddr write SetRemoteAddr;
   end;
 
@@ -720,12 +720,12 @@ begin
   Result := FStringRemoteHost;
 end;
 
-procedure TAstaClientSocket.SetRemotePort(Value: SmallInt);
+procedure TAstaClientSocket.SetRemotePort(Value: Word);
 begin
   FRemoteAddr.sin_port := htons(Value);
 end;
 
-function TAstaClientSocket.GetRemotePort: SmallInt;
+function TAstaClientSocket.GetRemotePort: Word;
 begin
   Result := ntohs(FRemoteAddr.sin_port);
 end;

@@ -353,7 +353,7 @@ const
     FActive: Boolean;
     FSocket: TAstaClientSocket;
     FAddress: String;
-    FPort: SmallInt;
+    FPort: Word;
     FAbout: String;
     FKeepAlive: Boolean;
     FInvokeEvents: Boolean;
@@ -1809,7 +1809,7 @@ procedure TAstaIOClientSocket.SetPort(Value: String);
 begin
   if (StrToInt(Value) < Low(Word)) or (StrToInt(Value) > High(Word)) then
     Raise Exception.Create(Format(SValidValues, [IntToStr(Low(Word)), IntToStr(High(Word))]));
-  FPort := StrToInt(Value);
+  FPort := Word(StrToInt(Value));
 end;
 (*
 function  TAstaIOClientSocket.SendGetString(S: String): String;
