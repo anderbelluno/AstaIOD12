@@ -793,7 +793,7 @@ end;
 
 function TAdvEvent.WaitFor(TimeOutMs: Integer): Boolean;
 begin
-  if WaitForSingleObject(FEvent, TimeOutMs) = WAIT_OBJECT_0
+  if WaitForSingleObject(FEvent, DWORD(TimeOutMs)) = WAIT_OBJECT_0
     then Result := True
     else Result := False;
 end;
